@@ -1,0 +1,16 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      // Allow users to read and write to their own document
+      allow read, write: if request.auth.uid == userId;
+
+      // Allow managers and admins to read all user documents
+      allow list, get: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['manager', 'admin'];
+
+      // Allow admins to update the role of any user
+      allow update: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+  }
+}
