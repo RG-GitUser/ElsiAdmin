@@ -23,6 +23,7 @@ const useUsersStore = create((set) => ({
       const users = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       set({ users, loading: false });
     } catch (error) {
+      console.error("Detailed error fetching users:", error);
       set({ error: error.message, loading: false });
     }
   },
@@ -42,6 +43,7 @@ const useUsersStore = create((set) => ({
         throw new Error('User not authenticated');
       }
     } catch (error) {
+      console.error("Detailed error adding user:", error);
       set({ error: error.message, loading: false });
     }
   },
@@ -58,6 +60,7 @@ const useUsersStore = create((set) => ({
         loading: false,
       }));
     } catch (error) {
+      console.error("Detailed error updating user:", error);
       set({ error: error.message, loading: false });
     }
   },
@@ -71,6 +74,7 @@ const useUsersStore = create((set) => ({
         loading: false,
       }));
     } catch (error) {
+      console.error("Detailed error deleting user:", error);
       set({ error: error.message, loading: false });
     }
   },

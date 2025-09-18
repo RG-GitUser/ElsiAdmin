@@ -7,6 +7,8 @@ import {
   updateDoc,
   deleteDoc,
   doc,
+  query,
+  where
 } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { getAuth } from 'firebase/auth';
@@ -19,10 +21,18 @@ const useTemplatesStore = create((set) => ({
   fetchTemplates: async () => {
     set({ loading: true, error: null });
     try {
-      const querySnapshot = await getDocs(collection(db, 'templates'));
-      const templates = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      set({ templates, loading: false });
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (user) {
+        const q = query(collection(db, 'templates'), where('owner', '==', user.uid));
+        const querySnapshot = await getDocs(q);
+        const templates = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        set({ templates, loading: false });
+      } else {
+        set({ templates: [], loading: false });
+      }
     } catch (error) {
+      console.error("Detailed error fetching templates:", error);
       set({ error: error.message, loading: false });
     }
   },
@@ -43,6 +53,7 @@ const useTemplatesStore = create((set) => ({
         throw new Error('User not authenticated');
       }
     } catch (error) {
+      console.error("Detailed error adding template:", error);
       set({ error: error.message, loading: false });
     }
   },
@@ -59,6 +70,7 @@ const useTemplatesStore = create((set) => ({
         loading: false,
       }));
     } catch (error) {
+      console.error("Detailed error updating template:", error);
       set({ error: error.message, loading: false });
     }
   },
@@ -72,6 +84,7 @@ const useTemplatesStore = create((set) => ({
         loading: false,
       }));
     } catch (error) {
+      console.error("Detailed error deleting template:", error);
       set({ error: error.message, loading: false });
     }
   },

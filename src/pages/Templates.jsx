@@ -6,7 +6,7 @@ import {
   CircularProgress,
   Alert,
   List,
-  ListItem,
+  ListItemButton,
   ListItemText,
   IconButton,
   TextField,
@@ -136,7 +136,7 @@ function Templates() {
 
       <Grid container spacing={2}>
         {templateFolders.map((folder) => (
-          <Grid item xs={12} key={folder}>
+          <Grid xs={12} key={folder}>
             <Paper
               elevation={3}
               sx={{
@@ -159,10 +159,14 @@ function Templates() {
                 {filteredTemplates
                   .filter((template) => template.folder === folder)
                   .map((template) => (
-                    <ListItem
+                    <ListItemButton
                       key={template.id}
-                      secondaryAction={
-                        user && template.owner === user.uid ? (
+                    >
+                      <ListItemText
+                        primary={template.name || "N/A"}
+                        secondary={template.description || "N/A"}
+                      />
+                      {user && template.owner === user.uid ? (
                           <>
                             <IconButton
                               edge="end"
@@ -188,14 +192,8 @@ function Templates() {
                               <Delete />
                             </IconButton>
                           </>
-                        ) : null
-                      }
-                    >
-                      <ListItemText
-                        primary={template.name || "N/A"}
-                        secondary={template.description || "N/A"}
-                      />
-                    </ListItem>
+                        ) : null}
+                    </ListItemButton>
                   ))}
               </List>
             </Collapse>

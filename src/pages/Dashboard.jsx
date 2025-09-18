@@ -14,6 +14,7 @@ import {
   Box,
   Switch,
   FormControlLabel,
+  ListItemButton
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -154,10 +155,10 @@ const Dashboard = () => {
         </DrawerHeader>
         <List>
           {menuItems.map((item) => (
-            <ListItem button key={item.text} onClick={() => navigate(item.path)}>
+            <ListItemButton key={item.text} onClick={() => navigate(item.path)}>
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
-            </ListItem>
+            </ListItemButton>
           ))}
         </List>
       </Drawer>
