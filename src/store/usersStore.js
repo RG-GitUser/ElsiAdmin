@@ -9,6 +9,7 @@ import {
   doc,
 } from 'firebase/firestore';
 import { db } from '../services/firebase';
+import { getAuth } from 'firebase/auth';
 
 const useUsersStore = create((set) => ({
   users: [],
@@ -29,11 +30,17 @@ const useUsersStore = create((set) => ({
   addUser: async (user) => {
     set({ loading: true, error: null });
     try {
-      const docRef = await addDoc(collection(db, 'users'), user);
-      set((state) => ({
-        users: [...state.users, { id: docRef.id, ...user }],
-        loading: false,
-      }));
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const docRef = await addDoc(collection(db, 'users'), user);
+        set((state) => ({
+          users: [...state.users, { id: docRef.id, ...user }],
+          loading: false,
+        }));
+      } else {
+        throw new Error('User not authenticated');
+      }
     } catch (error) {
       set({ error: error.message, loading: false });
     }

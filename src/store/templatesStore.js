@@ -9,6 +9,7 @@ import {
   doc,
 } from 'firebase/firestore';
 import { db } from '../services/firebase';
+import { getAuth } from 'firebase/auth';
 
 const useTemplatesStore = create((set) => ({
   templates: [],
@@ -29,11 +30,18 @@ const useTemplatesStore = create((set) => ({
   addTemplate: async (template) => {
     set({ loading: true, error: null });
     try {
-      const docRef = await addDoc(collection(db, 'templates'), template);
-      set((state) => ({
-        templates: [...state.templates, { id: docRef.id, ...template }],
-        loading: false,
-      }));
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (user) {
+        const newTemplate = { ...template, owner: user.uid, sharedWith: [], folder: template.folder || '' };
+        const docRef = await addDoc(collection(db, 'templates'), newTemplate);
+        set((state) => ({
+          templates: [...state.templates, { id: docRef.id, ...newTemplate }],
+          loading: false,
+        }));
+      } else {
+        throw new Error('User not authenticated');
+      }
     } catch (error) {
       set({ error: error.message, loading: false });
     }
