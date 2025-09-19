@@ -23,6 +23,8 @@ import useAuthStore from "../store/authStore";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [success, setSuccess] = useState("");
@@ -62,6 +64,10 @@ function Login() {
   };
 
   const handleSignUp = async () => {
+    if (!firstName || !lastName) {
+        setError("First name and last name are required.");
+        return;
+    }
     try {
       setError(null);
       setSuccess("");
@@ -74,7 +80,8 @@ function Login() {
       // **Create a user profile document in Firestore**
       await setDoc(doc(db, "users", newUser.uid), {
         email: newUser.email,
-        name: newUser.email, // Default name to email
+        firstName,
+        lastName,
         role: "user", // Default role
       });
 
@@ -123,6 +130,32 @@ function Login() {
             </Alert>
           )}
           <Box sx={{ mt: 1 }}>
+            {isSignUp && (
+                <>
+                    <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="firstName"
+                        label="First Name"
+                        name="firstName"
+                        autoComplete="given-name"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                    />
+                    <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="lastName"
+                        label="Last Name"
+                        name="lastName"
+                        autoComplete="family-name"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                    />
+                </>
+            )}
             <TextField
               margin="normal"
               required

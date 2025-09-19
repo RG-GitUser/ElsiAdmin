@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   Box,
@@ -27,8 +27,7 @@ import TemplateDialog from "../components/TemplateDialog";
 import ShareTemplateDialog from "../components/ShareTemplateDialog";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import exportPDF from "../utils/exportPDF";
 
 const templateFolders = [
   "Demo",
@@ -101,32 +100,7 @@ function Templates() {
   };
 
   const handleExport = (template) => {
-    const input = document.getElementById(`export-${template.id}`);
-    html2canvas(input, {
-      logging: true,
-      useCORS: true,
-      scale: 2,
-    }).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        orientation: "p",
-        unit: "px",
-        format: "a4",
-      });
-      const width = pdf.internal.pageSize.getWidth();
-      const height = pdf.internal.pageSize.getHeight();
-      const canvasAspectRatio = canvas.width / canvas.height;
-      const pageAspectRatio = width / height;
-      let renderWidth = width;
-      let renderHeight = width / canvasAspectRatio;
-      if (renderHeight > height) {
-        renderHeight = height;
-        renderWidth = height * canvasAspectRatio;
-      }
-
-      pdf.addImage(imgData, "PNG", 0, 0, renderWidth, renderHeight);
-      pdf.save(`${template.name}.pdf`);
-    });
+    exportPDF(template);
   };
 
   const filteredTemplates = templates.filter(
@@ -280,66 +254,6 @@ function Templates() {
         onClose={handleCloseShareDialog}
         template={selectedTemplate}
       />
-
-      {/* Hidden div for PDF export content */}
-      <div
-        style={{
-          position: "absolute",
-          left: "-9999px",
-          top: "-9999px",
-        }}
-      >
-        {templates.map((template) => (
-          <div
-            id={`export-${template.id}`}
-            key={`export-${template.id}`}
-            style={{
-              width: "800px",
-              fontFamily: "Arial, sans-serif",
-              color: "#333",
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: "#1976d2",
-                color: "white",
-                padding: "20px",
-                textAlign: "center",
-              }}
-            >
-              <h1 style={{ margin: 0, fontSize: "2.5em" }}>{template.name}</h1>
-            </div>
-            <div style={{ padding: "20px" }}>
-              <div
-                style={{
-                  backgroundColor: "#e3f2fd",
-                  padding: "15px",
-                  marginBottom: "20px",
-                  borderRadius: "5px",
-                }}
-              >
-                <p style={{ margin: 0 }}>{template.description}</p>
-              </div>
-              <hr style={{ border: "none", borderTop: "1px solid #ccc" }} />
-              {template.customFields &&
-                template.customFields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    style={{
-                      marginBottom: "10px",
-                      padding: "10px",
-                      backgroundColor: index % 2 === 0 ? "#f5f5f5" : "white",
-                      borderRadius: "5px",
-                    }}
-                  >
-                    <strong style={{ color: "#1565c0" }}>{field.name}:</strong>
-                    <div style={{ marginTop: "5px" }}>{field.value}</div>
-                  </div>
-                ))}
-            </div>
-          </div>
-        ))}
-      </div>
     </Box>
   );
 }

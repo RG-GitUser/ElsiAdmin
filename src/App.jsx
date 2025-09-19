@@ -39,6 +39,7 @@ function App() {
           <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
           <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/" />} />
           <Route path="/" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}>
+            <Route index element={<Templates />} />
             <Route path="users" element={<Users />} />
             <Route path="templates" element={<Templates />} />
             <Route path="settings" element={<Settings />} />

@@ -76,7 +76,8 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   alignItems: "center",
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
-  justifyContent: "flex-end",
+  justifyContent: "center",
+  position: "relative",
 }));
 
 const Dashboard = () => {
@@ -90,7 +91,9 @@ const Dashboard = () => {
   useEffect(() => {
     const checkAdminStatus = async () => {
       const user = auth.currentUser;
-      if (user) {
+      if (user && user.email === 'wssadmin@wabanakisoftwaresolutions.com') {
+        setIsAdmin(true);
+      } else if (user) {
         const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists() && userDoc.data().role === "Admin") {
@@ -141,6 +144,7 @@ const Dashboard = () => {
           >
             <MenuIcon />
           </IconButton>
+          <img src="/assets/elsipogtoglogo.png" alt="Elsipogtog Employee Dashboard Logo" style={{ height: '40px', marginRight: '10px' }} />
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Elsipogtog Employee Dashboard
           </Typography>
@@ -167,7 +171,8 @@ const Dashboard = () => {
         open={open}
       >
         <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
+            <img src="/assets/elsipogtoglogo.png" alt="Elsipogtog Employee Dashboard Logo" style={{ height: '40px'}} />
+          <IconButton onClick={handleDrawerClose} sx={{ position: 'absolute', right: 8 }}>
             <ChevronLeftIcon />
           </IconButton>
         </DrawerHeader>

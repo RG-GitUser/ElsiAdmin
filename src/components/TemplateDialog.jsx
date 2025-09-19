@@ -16,6 +16,8 @@ import {
 } from "@mui/material";
 import { Add, Delete } from "@mui/icons-material";
 import useTemplatesStore from "../store/templatesStore";
+import { getAuth } from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 
 function TemplateDialog({ open, onClose, template, templateFolders }) {
   const [name, setName] = useState("");
@@ -24,6 +26,9 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
   const [customFields, setCustomFields] = useState([]);
   const [error, setError] = useState(null);
   const { addTemplate, updateTemplate } = useTemplatesStore();
+  const auth = getAuth();
+  const db = getFirestore();
+  const user = auth.currentUser;
 
   useEffect(() => {
     if (template) {
@@ -58,7 +63,7 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
     setCustomFields(customFields.filter((cf) => cf.id !== id));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!name.trim()) {
       setError("Name is a required field.");
       return;
@@ -67,7 +72,26 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
     if (template) {
       updateTemplate(template.id, { name, description, folder, customFields });
     } else {
-      addTemplate({ name, description, folder, customFields });
+      let creatorName = "Unknown";
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          creatorName = `${userData.firstName} ${userData.lastName}`;
+        } else {
+            creatorName = user.displayName || "Unknown";
+        }
+      }
+      const newTemplate = {
+        name,
+        description,
+        folder,
+        customFields,
+        createdBy: creatorName,
+        createdAt: new Date().toLocaleDateString(),
+      };
+      addTemplate(newTemplate);
     }
     onClose();
   };
