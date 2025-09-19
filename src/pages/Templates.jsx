@@ -104,11 +104,11 @@ function Templates() {
             (template.description &&
               template.description.toLowerCase().includes(searchTerm.toLowerCase()))) &&
           (template.owner === user.uid ||
-            (template.sharedWith && template.sharedWith.includes(user.uid)))
+            (template.sharedWith && template.sharedWith.includes(user.uid)) || userRole === 'Admin')
       )
     : [];
 
-  const canCreateTemplate = userRole === "Administrator" || userRole === "Manager";
+  const canCreateTemplate = userRole === "Admin" || userRole === "Manager";
 
   return (
     <Box>
@@ -136,7 +136,7 @@ function Templates() {
 
       <Grid container spacing={2}>
         {templateFolders.map((folder) => (
-          <Grid xs={12} key={folder}>
+          <Grid item xs={12} key={folder}>
             <Paper
               elevation={3}
               sx={{
@@ -161,24 +161,25 @@ function Templates() {
                   .map((template) => (
                     <ListItemButton
                       key={template.id}
+                      onClick={() => handleOpenDialog(template)}
                     >
                       <ListItemText
                         primary={template.name || "N/A"}
                         secondary={template.description || "N/A"}
                       />
-                      {user && template.owner === user.uid ? (
+                      {(user && template.owner === user.uid) || userRole === 'Admin' && (
                           <>
                             <IconButton
                               edge="end"
                               aria-label="edit"
-                              onClick={() => handleOpenDialog(template)}
+                              onClick={(e) => {e.stopPropagation(); handleOpenDialog(template)} }
                             >
                               <Edit />
                             </IconButton>
                             <IconButton
                               edge="end"
                               aria-label="share"
-                              onClick={() => handleOpenShareDialog(template)}
+                              onClick={(e) => {e.stopPropagation(); handleOpenShareDialog(template)} }
                               sx={{ ml: 1 }}
                             >
                               <Share />
@@ -186,13 +187,13 @@ function Templates() {
                             <IconButton
                               edge="end"
                               aria-label="delete"
-                              onClick={() => deleteTemplate(template.id)}
+                              onClick={(e) => {e.stopPropagation(); deleteTemplate(template.id)} }
                               sx={{ ml: 1 }}
                             >
                               <Delete />
                             </IconButton>
                           </>
-                        ) : null}
+                        )}
                     </ListItemButton>
                   ))}
               </List>

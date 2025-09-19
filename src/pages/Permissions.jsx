@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
-  TextField,
   Typography,
   Card,
   CardContent,
@@ -24,37 +24,38 @@ import { getAuth } from "firebase/auth";
 const Permissions = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentUserRole, setCurrentUserRole] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const db = getFirestore();
   const auth = getAuth();
-  const user = auth.currentUser;
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUsersAndRole = async () => {
+    const checkAdminStatusAndFetchUsers = async () => {
+      const user = auth.currentUser;
       if (user) {
-        // Fetch current user's role
         const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          setCurrentUserRole(userDoc.data().role || "employee");
+        if (userDoc.exists() && userDoc.data().role === "Admin") {
+          setIsAdmin(true);
+          const usersCollectionRef = collection(db, "users");
+          const usersSnapshot = await getDocs(usersCollectionRef);
+          const usersList = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setUsers(usersList);
+        } else {
+          navigate("/");
         }
-
-        // Fetch all users
-        const usersCollectionRef = collection(db, "users");
-        const usersSnapshot = await getDocs(usersCollectionRef);
-        const usersList = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setUsers(usersList);
+      } else {
+        navigate("/login");
       }
       setLoading(false);
     };
 
-    fetchUsersAndRole();
-  }, [user, db]);
+    checkAdminStatusAndFetchUsers();
+  }, [auth, db, navigate]);
 
   const handleRoleChange = async (userId, newRole) => {
     const userDocRef = doc(db, "users", userId);
     await updateDoc(userDocRef, { role: newRole });
-    // Update local state
     setUsers(users.map(u => (u.id === userId ? { ...u, role: newRole } : u)));
   };
 
@@ -62,13 +63,8 @@ const Permissions = () => {
     return <CircularProgress />;
   }
 
-  if (!["manager", "admin"].includes(currentUserRole)) {
-    return (
-      <Box>
-        <Typography variant="h6">Access Denied</Typography>
-        <Typography>You do not have permission to view this page.</Typography>
-      </Box>
-    );
+  if (!isAdmin) {
+    return null;
   }
 
   return (
@@ -90,17 +86,16 @@ const Permissions = () => {
               <TableBody>
                 {users.map((u) => (
                   <TableRow key={u.id}>
-                    <TableCell>{u.displayName}</TableCell>
+                    <TableCell>{u.name}</TableCell>
                     <TableCell>{u.email}</TableCell>
                     <TableCell>
                       <FormControl fullWidth>
                         <Select
-                          value={u.role || 'employee'}
+                          value={u.role || 'User'}
                           onChange={(e) => handleRoleChange(u.id, e.target.value)}
                         >
-                          <MenuItem value="employee">Employee</MenuItem>
-                          <MenuItem value="manager">Manager</MenuItem>
-                          <MenuItem value="admin">Admin</MenuItem>
+                          <MenuItem value="User">User</MenuItem>
+                          <MenuItem value="Admin">Admin</MenuItem>
                         </Select>
                       </FormControl>
                     </TableCell>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 import { Box, TextField, Button, Typography, Card, CardContent } from "@mui/material";
 
 const Register = () => {
@@ -9,12 +10,25 @@ const Register = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const auth = getAuth();
+  const db = getFirestore();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Create a user profile document in Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        email: user.email,
+        name: user.email.split('@')[0], // Set a default name from email
+        role: "Employee", // Default role
+        department: "",
+        employeeId: "",
+      });
+
       navigate("/");
     } catch (err) {
       setError(err.message);

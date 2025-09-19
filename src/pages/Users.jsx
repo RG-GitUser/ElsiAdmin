@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Typography,
   Box,
@@ -15,16 +16,37 @@ import {
 import { Edit, Delete } from "@mui/icons-material";
 import useUsersStore from "../store/usersStore";
 import UserDialog from "../components/UserDialog";
+import { getAuth } from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 
 function Users() {
   const { users, loading, error, fetchUsers, deleteUser } = useUsersStore();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const navigate = useNavigate();
+  const auth = getAuth();
+  const db = getFirestore();
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    const checkAdminStatus = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists() && userDoc.data().role === "Admin") {
+          setIsAdmin(true);
+          fetchUsers();
+        } else {
+          navigate("/");
+        }
+      } else {
+        navigate("/login");
+      }
+    };
+    checkAdminStatus();
+  }, [auth, db, fetchUsers, navigate]);
 
   const handleOpenDialog = (user = null) => {
     setSelectedUser(user);
@@ -47,6 +69,10 @@ function Users() {
       (user.email &&
         user.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  if (!isAdmin) {
+    return null; // Or a loading spinner
+  }
 
   return (
     <Box>

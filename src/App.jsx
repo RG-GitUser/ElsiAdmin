@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
@@ -43,7 +42,7 @@ function App() {
             <Route path="users" element={<Users />} />
             <Route path="templates" element={<Templates />} />
             <Route path="settings" element={<Settings />} />
-            <Route path="profile" element={<Profile />} />
+            <Route path="profile/:userId" element={<Profile />} />
             <Route path="permissions" element={<Permissions />} />
             <Route path="analytics" element={<Analytics />} />
           </Route>

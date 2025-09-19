@@ -5,12 +5,12 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  List,
-  ListItem,
-  ListItemText,
-  Checkbox,
   CircularProgress,
   Alert,
+  TextField,
+  Box,
+  Chip,
+  Typography,
 } from '@mui/material';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import useTemplatesStore from '../store/templatesStore';
@@ -20,6 +20,7 @@ function ShareTemplateDialog({ open, onClose, template }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [emailInput, setEmailInput] = useState('');
   const { updateTemplate } = useTemplatesStore();
   const db = getFirestore();
 
@@ -51,17 +52,22 @@ function ShareTemplateDialog({ open, onClose, template }) {
     }
   }, [template]);
 
-  const handleToggleUser = (userId) => {
-    const currentIndex = selectedUsers.indexOf(userId);
-    const newSelectedUsers = [...selectedUsers];
-
-    if (currentIndex === -1) {
-      newSelectedUsers.push(userId);
-    } else {
-      newSelectedUsers.splice(currentIndex, 1);
+  const handleAddEmail = async () => {
+    if (emailInput) {
+      const user = users.find(u => u.email === emailInput);
+      if (user) {
+        if (!selectedUsers.includes(user.id)) {
+          setSelectedUsers([...selectedUsers, user.id]);
+        }
+        setEmailInput('');
+      } else {
+        setError('User with that email not found.');
+      }
     }
+  };
 
-    setSelectedUsers(newSelectedUsers);
+  const handleRemoveUser = (userId) => {
+    setSelectedUsers(selectedUsers.filter(id => id !== userId));
   };
 
   const handleShare = () => {
@@ -70,35 +76,47 @@ function ShareTemplateDialog({ open, onClose, template }) {
     }
     onClose();
   };
+  
+  const getEmailById = (userId) => {
+    const user = users.find(u => u.id === userId);
+    return user ? user.email : 'Unknown User';
+  }
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>Share Template</DialogTitle>
       <DialogContent>
         {loading && <CircularProgress />}
-        {error && <Alert severity="error">{error}</Alert>}
-        <List>
-          {users.map((user) => (
-            <ListItem
-              key={user.id}
-              dense
-              button
-              onClick={() => handleToggleUser(user.id)}
-            >
-              <Checkbox
-                edge="start"
-                checked={selectedUsers.indexOf(user.id) !== -1}
-                tabIndex={-1}
-                disableRipple
-              />
-              <ListItemText primary={user.email} />
-            </ListItem>
+        {error && <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>}
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <TextField
+            label="Enter email to share"
+            variant="outlined"
+            size="small"
+            fullWidth
+            value={emailInput}
+            onChange={(e) => setEmailInput(e.target.value)}
+          />
+          <Button onClick={handleAddEmail} sx={{ ml: 1 }} variant="contained">
+            Add
+          </Button>
+        </Box>
+        <Typography variant="subtitle1" gutterBottom>
+          Shared with:
+        </Typography>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+          {selectedUsers.map((userId) => (
+            <Chip
+              key={userId}
+              label={getEmailById(userId)}
+              onDelete={() => handleRemoveUser(userId)}
+            />
           ))}
-        </List>
+        </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleShare}>Share</Button>
+        <Button onClick={handleShare}>Save Sharing Settings</Button>
       </DialogActions>
     </Dialog>
   );

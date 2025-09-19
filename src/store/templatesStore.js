@@ -24,10 +24,37 @@ const useTemplatesStore = create((set) => ({
       const auth = getAuth();
       const user = auth.currentUser;
       if (user) {
-        const q = query(collection(db, 'templates'), where('owner', '==', user.uid));
-        const querySnapshot = await getDocs(q);
-        const templates = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        set({ templates, loading: false });
+        const ownedQuery = query(collection(db, 'templates'), where('owner', '==', user.uid));
+        const sharedQuery = query(collection(db, 'templates'), where('sharedWith', 'array-contains', user.uid));
+        const publicQuery = query(collection(db, 'templates'), where('folder', '>', ''));
+
+        const [ownedSnapshot, sharedSnapshot, publicSnapshot] = await Promise.all([
+          getDocs(ownedQuery),
+          getDocs(sharedQuery),
+          getDocs(publicQuery),
+        ]);
+
+        const templatesMap = new Map();
+
+        ownedSnapshot.docs.forEach(doc => {
+            templatesMap.set(doc.id, { id: doc.id, ...doc.data() });
+        });
+
+        sharedSnapshot.docs.forEach(doc => {
+            if (!templatesMap.has(doc.id)) {
+                templatesMap.set(doc.id, { id: doc.id, ...doc.data() });
+            }
+        });
+
+        publicSnapshot.docs.forEach(doc => {
+            if (!templatesMap.has(doc.id)) {
+                templatesMap.set(doc.id, { id: doc.id, ...doc.data() });
+            }
+        });
+
+        const allTemplates = Array.from(templatesMap.values());
+
+        set({ templates: allTemplates, loading: false });
       } else {
         set({ templates: [], loading: false });
       }

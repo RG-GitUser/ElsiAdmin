@@ -14,17 +14,26 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel
+  InputLabel,
+  List,
+  ListItem,
+  ListItemText
 } from '@mui/material';
+import useTemplatesStore from '../store/templatesStore';
 
 function MyProfile() {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState({});
+  const { templates, fetchTemplates } = useTemplatesStore();
   const auth = getAuth();
   const db = getFirestore();
   const user = auth.currentUser;
+
+  useEffect(() => {
+    fetchTemplates();
+  }, [fetchTemplates]);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -66,6 +75,8 @@ function MyProfile() {
     setEditedProfile((prev) => ({ ...prev, [name]: value }));
   };
 
+  const sharedWithMeTemplates = templates.filter(template => template.sharedWith && template.sharedWith.includes(user.uid) && template.owner !== user.uid);
+
   if (loading) {
     return <CircularProgress />;
   }
@@ -82,16 +93,16 @@ function MyProfile() {
       <Card>
         <CardContent>
           <Grid container spacing={2} alignItems="center">
-            <Grid>
+            <Grid item>
               <Avatar sx={{ width: 80, height: 80 }} />
             </Grid>
-            <Grid>
+            <Grid item>
               <Typography variant="h5">{userProfile.name}</Typography>
               <Typography variant="body1" color="textSecondary">
                 {userProfile.role}
               </Typography>
             </Grid>
-            <Grid sx={{ flexGrow: 1, textAlign: 'right' }}>
+            <Grid item sx={{ flexGrow: 1, textAlign: 'right' }}>
               {isEditing ? (
                 <>
                   <Button onClick={handleSave} variant="contained" sx={{ mr: 1 }}>Save</Button>
@@ -103,7 +114,7 @@ function MyProfile() {
             </Grid>
           </Grid>
           <Grid container spacing={3} sx={{ mt: 3 }}>
-            <Grid xs={12} sm={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 label="Name"
                 name="name"
@@ -113,7 +124,7 @@ function MyProfile() {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 label="Email"
                 name="email"
@@ -123,7 +134,7 @@ function MyProfile() {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 label="Employee ID"
                 name="employeeId"
@@ -133,7 +144,7 @@ function MyProfile() {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 label="Department"
                 name="department"
@@ -143,7 +154,7 @@ function MyProfile() {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid xs={12} sm={6}>
+            <Grid item xs={12} sm={6}>
               <FormControl fullWidth disabled={!isEditing}>
                 <InputLabel>Role</InputLabel>
                 <Select
@@ -153,14 +164,40 @@ function MyProfile() {
                   onChange={handleChange}
                 >
                   <MenuItem value="Employee">Employee</MenuItem>
+                  <MenuItem value="Team Lead">Team Lead</MenuItem>
                   <MenuItem value="Manager">Manager</MenuItem>
+                  <MenuItem value="Director">Director</MenuItem>
                   <MenuItem value="Administrator">Administrator</MenuItem>
+                  <MenuItem value="IT Support">IT Support</MenuItem>
+                  <MenuItem value="HR">HR</MenuItem>
+                  <MenuItem value="Finance">Finance</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
           </Grid>
         </CardContent>
       </Card>
+
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          Shared With Me
+        </Typography>
+        <Card>
+          <CardContent>
+            {sharedWithMeTemplates.length > 0 ? (
+              <List>
+                {sharedWithMeTemplates.map(template => (
+                  <ListItem key={template.id}>
+                    <ListItemText primary={template.name} secondary={template.description} />
+                  </ListItem>
+                ))}
+              </List>
+            ) : (
+              <Typography>No templates have been shared with you.</Typography>
+            )}
+          </CardContent>
+        </Card>
+      </Box>
     </Box>
   );
 }

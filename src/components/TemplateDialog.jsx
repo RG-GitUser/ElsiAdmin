@@ -27,8 +27,8 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
 
   useEffect(() => {
     if (template) {
-      setName(template.name);
-      setDescription(template.description);
+      setName(template.name || "");
+      setDescription(template.description || "");
       setFolder(template.folder || "");
       setCustomFields(template.customFields || []);
     } else {

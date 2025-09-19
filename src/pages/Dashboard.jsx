@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AppBar,
   Toolbar,
@@ -7,7 +7,6 @@ import {
   IconButton,
   Drawer,
   List,
-  ListItem,
   ListItemIcon,
   ListItemText,
   CssBaseline,
@@ -32,6 +31,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import useThemeStore from "../store/themeStore";
 import { getAuth } from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 
 const drawerWidth = 240;
 
@@ -81,9 +81,25 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 
 const Dashboard = () => {
   const [open, setOpen] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const { mode, toggleMode } = useThemeStore();
   const auth = getAuth();
+  const db = getFirestore();
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists() && userDoc.data().role === "Admin") {
+          setIsAdmin(true);
+        }
+      }
+    };
+    checkAdminStatus();
+  }, [auth, db]);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -99,15 +115,17 @@ const Dashboard = () => {
     });
   };
 
-  const menuItems = [
+  const allMenuItems = [
     { text: "Dashboard", icon: <HomeIcon />, path: "/" },
-    { text: "My Profile", icon: <AccountCircleIcon />, path: "/profile" },
+    { text: "My Profile", icon: <AccountCircleIcon />, path: `/profile/${auth.currentUser.uid}` },
     { text: "Templates", icon: <DescriptionIcon />, path: "/templates" },
-    { text: "Users", icon: <PeopleIcon />, path: "/users" },
-    { text: "Permissions", icon: <AdminPanelSettingsIcon />, path: "/permissions" },
+    { text: "Users", icon: <PeopleIcon />, path: "/users", adminOnly: true },
+    { text: "Permissions", icon: <AdminPanelSettingsIcon />, path: "/permissions", adminOnly: true },
     { text: "Analytics", icon: <AnalyticsIcon />, path: "/analytics" },
     { text: "Settings", icon: <SettingsIcon />, path: "/settings" },
   ];
+
+  const menuItems = allMenuItems.filter(item => !item.adminOnly || isAdmin);
 
   return (
     <Box sx={{ display: "flex" }}>
