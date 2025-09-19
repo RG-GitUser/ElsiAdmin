@@ -108,7 +108,6 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
     onClose();
   };
 
-  const signatureName = userData ? userData.name : (user ? user.displayName : 'Your Name');
   const signatureRole = userData ? userData.role : 'Your Role';
   const signatureCursive = userData ? userData.signature : 'Your Signature';
 
@@ -193,20 +192,19 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
         </Button>
 
         <Box sx={{ mt: 4, p: 2, border: '1px solid #ccc', borderRadius: '4px' }}>
-          <Typography variant="h6" gutterBottom>Signature Preview</Typography>
             <Grid container spacing={2}>
                 <Grid item>
                     <Avatar src="/assets/elsipogtoglogo.png" sx={{ width: 56, height: 56 }} />
                 </Grid>
                 <Grid item>
-                    <Typography variant="body1">{signatureName}</Typography>
+                    <Typography variant="body1">Created By</Typography>
                     <Typography variant="body2" color="textSecondary">
                       {signatureRole}
                     </Typography>
                 </Grid>
             </Grid>
             <Box sx={{ mt: 2 }}>
-                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'Ephesis, cursive', fontSize: '24px' }}>
+                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'Ephesis, cursive', fontSize: '18px' }}>
                     {signatureCursive}
                 </Typography>
             </Box>
