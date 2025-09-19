@@ -12,7 +12,10 @@ import {
   Select,
   MenuItem,
   IconButton,
-  Box
+  Box,
+  Typography,
+  Grid,
+  Avatar
 } from "@mui/material";
 import { Add, Delete } from "@mui/icons-material";
 import useTemplatesStore from "../store/templatesStore";
@@ -25,6 +28,7 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
   const [folder, setFolder] = useState("");
   const [customFields, setCustomFields] = useState([]);
   const [error, setError] = useState(null);
+  const [userData, setUserData] = useState(null);
   const { addTemplate, updateTemplate } = useTemplatesStore();
   const auth = getAuth();
   const db = getFirestore();
@@ -43,7 +47,18 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
       setCustomFields([]);
     }
     setError(null);
-  }, [template, open]);
+
+    const fetchUserData = async () => {
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          setUserData(userDoc.data());
+        }
+      }
+    };
+    fetchUserData();
+  }, [template, open, user, db]);
 
   const handleAddCustomField = () => {
     setCustomFields([...customFields, { id: Date.now(), name: "", value: "" }]);
@@ -74,13 +89,10 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
     } else {
       let creatorName = "Unknown";
       if (user) {
-        const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          creatorName = `${userData.firstName} ${userData.lastName}`;
+        if (userData) {
+          creatorName = userData.name;
         } else {
-            creatorName = user.displayName || "Unknown";
+          creatorName = user.displayName || "Unknown";
         }
       }
       const newTemplate = {
@@ -95,6 +107,10 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
     }
     onClose();
   };
+
+  const signatureName = userData ? userData.name : (user ? user.displayName : 'Your Name');
+  const signatureRole = userData ? userData.role : 'Your Role';
+  const signatureCursive = userData ? userData.signature : 'Your Signature';
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -138,15 +154,21 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
         </FormControl>
 
         <Box sx={{ mt: 2 }}>
+          <Typography variant="h6">Custom Fields</Typography>
           {customFields.map((field) => (
-            <Box key={field.id} sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+            <Box
+              key={field.id}
+              sx={{ display: "flex", alignItems: "center", mb: 1 }}
+            >
               <TextField
                 margin="dense"
                 label="Field Name"
                 type="text"
                 variant="standard"
                 value={field.name}
-                onChange={(e) => handleCustomFieldChange(field.id, "name", e.target.value)}
+                onChange={(e) =>
+                  handleCustomFieldChange(field.id, "name", e.target.value)
+                }
                 sx={{ mr: 1 }}
               />
               <TextField
@@ -155,7 +177,9 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
                 type="text"
                 variant="standard"
                 value={field.value}
-                onChange={(e) => handleCustomFieldChange(field.id, "value", e.target.value)}
+                onChange={(e) =>
+                  handleCustomFieldChange(field.id, "value", e.target.value)
+                }
               />
               <IconButton onClick={() => handleRemoveCustomField(field.id)}>
                 <Delete />
@@ -167,6 +191,26 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
         <Button onClick={handleAddCustomField} startIcon={<Add />}>
           Add Field
         </Button>
+
+        <Box sx={{ mt: 4, p: 2, border: '1px solid #ccc', borderRadius: '4px' }}>
+          <Typography variant="h6" gutterBottom>Signature Preview</Typography>
+            <Grid container spacing={2}>
+                <Grid item>
+                    <Avatar src="/assets/elsipogtoglogo.png" sx={{ width: 56, height: 56 }} />
+                </Grid>
+                <Grid item>
+                    <Typography variant="body1">{signatureName}</Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      {signatureRole}
+                    </Typography>
+                </Grid>
+            </Grid>
+            <Box sx={{ mt: 2 }}>
+                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'Ephesis, cursive', fontSize: '24px' }}>
+                    {signatureCursive}
+                </Typography>
+            </Box>
+          </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>

@@ -144,7 +144,6 @@ const Dashboard = () => {
           >
             <MenuIcon />
           </IconButton>
-          <img src="/assets/elsipogtoglogo.png" alt="Elsipogtog Employee Dashboard Logo" style={{ height: '40px', marginRight: '10px' }} />
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Elsipogtog Employee Dashboard
           </Typography>

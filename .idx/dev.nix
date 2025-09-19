@@ -2,10 +2,17 @@
 # see: https://developers.google.com/idx/guides/customize-idx-env
 { pkgs, ... }: {
   # Which nixpkgs channel to use.
-  channel = "stable-24.05"; # or "unstable"
+  channel = "unstable"; # Using unstable to get the latest packages
   # Use https://search.nixos.org/packages to find packages
   packages = [
     pkgs.nodejs_22
+    pkgs.glib
+    pkgs.dbus
+    pkgs.at-spi2-atk
+    pkgs.cups
+    pkgs.alsa-lib
+    pkgs.libxkbcommon
+    pkgs.nspr
   ];
   # Sets environment variables in the workspace
   env = {};

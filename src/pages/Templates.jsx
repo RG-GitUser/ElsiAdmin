@@ -115,38 +115,39 @@ function Templates() {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
-        Templates
-      </Typography>
+      <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: 'background.paper', py: 2 }}>
+        <Typography variant="h4" gutterBottom>
+          Templates
+        </Typography>
 
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 2,
-        }}
-      >
-        <TextField
-          label="Search"
-          variant="outlined"
-          size="small"
-          value={searchTerm}
-          onChange={handleSearchChange}
-          sx={{ width: "300px" }}
-        />
-        {canCreateTemplate && (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => handleOpenDialog()}
-          >
-            Create New Template
-          </Button>
-        )}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <TextField
+            label="Search"
+            variant="outlined"
+            size="small"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            sx={{ width: "300px" }}
+          />
+          {canCreateTemplate && (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => handleOpenDialog()}
+            >
+              Create New Template
+            </Button>
+          )}
+        </Box>
       </Box>
 
-      <Box>
+      <Box sx={{ pt: 2 }}>
         {templateFolders.map((folder) => (
           <Box key={folder} sx={{ mb: 2 }}>
             <Paper
