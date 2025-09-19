@@ -3,19 +3,27 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isAdmin() {
-      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+    // Helper function to check for the superAdmin role
+    function isSuperAdmin() {
+      return request.auth.token.isSuperAdmin == true;
     }
 
+    // Rules for the users collection
     match /users/{userId} {
+      // Any authenticated user can read any user's profile.
       allow read: if request.auth != null;
-      allow write: if request.auth.uid == userId || isAdmin();
+      // A user can update their own document, or a superAdmin can update any user document.
+      allow write: if request.auth.uid == userId || isSuperAdmin();
     }
 
+    // Rules for the templates collection
     match /templates/{templateId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth.uid == resource.data.owner || isAdmin();
+        // A user can read, update, and delete their own templates.
+        allow get, update, delete: if request.auth.uid == resource.data.owner;
+        // A user can only list their own templates.
+        allow list: if request.auth.uid != null && request.query.where.field == 'owner' && request.query.where.value == request.auth.uid;
+        // Any authenticated user can create a template.
+        allow create: if request.auth != null;
     }
   }
 }

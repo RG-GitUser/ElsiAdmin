@@ -24,43 +24,19 @@ const useTemplatesStore = create((set) => ({
       const auth = getAuth();
       const user = auth.currentUser;
       if (user) {
-        const ownedQuery = query(collection(db, 'templates'), where('owner', '==', user.uid));
-        const sharedQuery = query(collection(db, 'templates'), where('sharedWith', 'array-contains', user.uid));
-        const publicQuery = query(collection(db, 'templates'), where('folder', '>', ''));
-
-        const [ownedSnapshot, sharedSnapshot, publicSnapshot] = await Promise.all([
-          getDocs(ownedQuery),
-          getDocs(sharedQuery),
-          getDocs(publicQuery),
-        ]);
-
-        const templatesMap = new Map();
-
-        ownedSnapshot.docs.forEach(doc => {
-            templatesMap.set(doc.id, { id: doc.id, ...doc.data() });
-        });
-
-        sharedSnapshot.docs.forEach(doc => {
-            if (!templatesMap.has(doc.id)) {
-                templatesMap.set(doc.id, { id: doc.id, ...doc.data() });
-            }
-        });
-
-        publicSnapshot.docs.forEach(doc => {
-            if (!templatesMap.has(doc.id)) {
-                templatesMap.set(doc.id, { id: doc.id, ...doc.data() });
-            }
-        });
-
-        const allTemplates = Array.from(templatesMap.values());
-
-        set({ templates: allTemplates, loading: false });
+        // Simplified query: ONLY fetch templates owned by the current user.
+        const templatesCollectionRef = collection(db, 'templates');
+        const q = query(templatesCollectionRef, where('owner', '==', user.uid));
+        const querySnapshot = await getDocs(q);
+        const userTemplates = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), folder: doc.data().folder || '' }));
+        set({ templates: userTemplates, loading: false });
       } else {
+        // If no user is logged in, no templates will be fetched.
         set({ templates: [], loading: false });
       }
     } catch (error) {
-      console.error("Detailed error fetching templates:", error);
-      set({ error: error.message, loading: false });
+      console.error("FATAL: Error fetching templates:", error);
+      set({ error: `FATAL: Failed to fetch templates. Details: ${error.message}`, loading: false });
     }
   },
 
@@ -70,7 +46,8 @@ const useTemplatesStore = create((set) => ({
       const auth = getAuth();
       const user = auth.currentUser;
       if (user) {
-        const newTemplate = { ...template, owner: user.uid, sharedWith: [], folder: template.folder || '' };
+        // Templates are private by default, removing all public/sharing logic.
+        const newTemplate = { ...template, owner: user.uid, folder: template.folder || '' };
         const docRef = await addDoc(collection(db, 'templates'), newTemplate);
         set((state) => ({
           templates: [...state.templates, { id: docRef.id, ...newTemplate }],
@@ -80,7 +57,6 @@ const useTemplatesStore = create((set) => ({
         throw new Error('User not authenticated');
       }
     } catch (error) {
-      console.error("Detailed error adding template:", error);
       set({ error: error.message, loading: false });
     }
   },
@@ -97,7 +73,6 @@ const useTemplatesStore = create((set) => ({
         loading: false,
       }));
     } catch (error) {
-      console.error("Detailed error updating template:", error);
       set({ error: error.message, loading: false });
     }
   },
@@ -111,7 +86,6 @@ const useTemplatesStore = create((set) => ({
         loading: false,
       }));
     } catch (error) {
-      console.error("Detailed error deleting template:", error);
       set({ error: error.message, loading: false });
     }
   },

@@ -35,7 +35,7 @@ function Users() {
       if (user) {
         const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists() && userDoc.data().role === "Admin") {
+        if (userDoc.exists() && userDoc.data().role.toLowerCase() === "admin") {
           setIsAdmin(true);
           fetchUsers();
         } else {
@@ -123,7 +123,7 @@ function Users() {
           >
             <ListItemText
               primary={user.name || "N/A"}
-              secondary={user.email || "N/A"}
+              secondary={`${user.email || "N/A"} - ${user.role || "N/A"}`}
             />
           </ListItem>
         ))}

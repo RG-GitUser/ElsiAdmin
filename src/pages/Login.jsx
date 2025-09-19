@@ -16,7 +16,8 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
 } from "firebase/auth";
-import { auth } from "../services/firebase";
+import { auth, db } from "../services/firebase"; // Import db from firebase services
+import { doc, setDoc } from "firebase/firestore"; // Import doc and setDoc
 import useAuthStore from "../store/authStore";
 
 function Login() {
@@ -69,8 +70,16 @@ function Login() {
         email,
         password
       );
+      const newUser = userCredential.user;
+      // **Create a user profile document in Firestore**
+      await setDoc(doc(db, "users", newUser.uid), {
+        email: newUser.email,
+        name: newUser.email, // Default name to email
+        role: "user", // Default role
+      });
+
       setSuccess("Sign up successful! Redirecting to the dashboard...");
-      setUser(userCredential.user);
+      setUser(newUser);
     } catch (error) {
       setError(error.message);
     }
@@ -169,7 +178,7 @@ function Login() {
             >
               {isSignUp
                 ? "Already have an account? Sign In"
-                : "Don't have an account? Sign Up"}
+                : "Don\'t have an account? Sign Up"}
             </Typography>
           </Box>
         </Box>

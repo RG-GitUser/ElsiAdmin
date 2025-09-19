@@ -39,3 +39,7 @@ The following steps will be taken to build out the full dashboard functionality:
     *   Update Firestore security rules to enforce the new role-based permissions:
         *   Users can only read and write to their own profile.
         *   Managers and admins can read all user data and update specific fields like `role`.
+7. **Export Templates to PDF**
+    * Install `jspdf` and `html2canvas` to enable exporting templates to PDF.
+    * Add an export button to each template item.
+    * Implement the logic to convert the template content to a PDF and download it.

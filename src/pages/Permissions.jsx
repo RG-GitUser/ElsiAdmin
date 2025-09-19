@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -16,32 +17,34 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
 } from "@mui/material";
-import { getFirestore, collection, getDocs, doc, getDoc, updateDoc } from "firebase/firestore";
+import { getFirestore, collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 const Permissions = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const db = getFirestore();
   const auth = getAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAdminStatusAndFetchUsers = async () => {
+    const checkSuperAdminStatusAndFetchUsers = async () => {
       const user = auth.currentUser;
       if (user) {
-        const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists() && userDoc.data().role === "Admin") {
-          setIsAdmin(true);
+        await user.getIdToken(true); // Force refresh the token to get latest claims
+        const idTokenResult = await user.getIdTokenResult();
+
+        // Check for the isSuperAdmin custom claim
+        if (idTokenResult.claims.isSuperAdmin === true) {
+          setIsSuperAdmin(true);
           const usersCollectionRef = collection(db, "users");
           const usersSnapshot = await getDocs(usersCollectionRef);
           const usersList = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           setUsers(usersList);
         } else {
+          // If not a super admin, redirect
           navigate("/");
         }
       } else {
@@ -50,12 +53,12 @@ const Permissions = () => {
       setLoading(false);
     };
 
-    checkAdminStatusAndFetchUsers();
+    checkSuperAdminStatusAndFetchUsers();
   }, [auth, db, navigate]);
 
   const handleRoleChange = async (userId, newRole) => {
     const userDocRef = doc(db, "users", userId);
-    await updateDoc(userDocRef, { role: newRole });
+    await updateDoc(userDocRef, { role: newRole.toLowerCase() });
     setUsers(users.map(u => (u.id === userId ? { ...u, role: newRole } : u)));
   };
 
@@ -63,7 +66,8 @@ const Permissions = () => {
     return <CircularProgress />;
   }
 
-  if (!isAdmin) {
+  if (!isSuperAdmin) {
+    // Render nothing or a redirection message if not a super admin
     return null;
   }
 
@@ -91,11 +95,13 @@ const Permissions = () => {
                     <TableCell>
                       <FormControl fullWidth>
                         <Select
-                          value={u.role || 'User'}
+                          value={u.role || 'user'}
                           onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                          // Disable changing role for the super admin themselves
+                          disabled={u.uid === auth.currentUser.uid}
                         >
-                          <MenuItem value="User">User</MenuItem>
-                          <MenuItem value="Admin">Admin</MenuItem>
+                          <MenuItem value="user">User</MenuItem>
+                          <MenuItem value="admin">Admin</MenuItem>
                         </Select>
                       </FormControl>
                     </TableCell>

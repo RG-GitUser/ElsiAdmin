@@ -19,20 +19,25 @@ import {
 } from '@mui/material';
 
 function Profile() {
-  const { userId } = useParams();
+  const { userId: userIdFromParams } = useParams();
+  const auth = getAuth();
+  const db = getFirestore();
+  const navigate = useNavigate();
+  const currentUser = auth.currentUser;
+  const userId = userIdFromParams || currentUser?.uid;
+
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState({});
   const [currentUserRole, setCurrentUserRole] = useState(null);
 
-  const auth = getAuth();
-  const db = getFirestore();
-  const navigate = useNavigate();
-  const currentUser = auth.currentUser;
-
   useEffect(() => {
     const fetchUserProfile = async () => {
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       const userDocRef = doc(db, 'users', userId);
       const userDoc = await getDoc(userDocRef);
@@ -177,7 +182,38 @@ function Profile() {
                 </Select>
               </FormControl>
             </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Email Signature"
+                name="signature"
+                fullWidth
+                multiline
+                rows={4}
+                value={editedProfile.signature || ''}
+                disabled={!isEditing}
+                onChange={handleChange}
+              />
+            </Grid>
           </Grid>
+          <Box sx={{ mt: 4, p: 2, border: '1px solid #ccc', borderRadius: '4px' }}>
+            <Typography variant="h6" gutterBottom>Signature Preview</Typography>
+            <Grid container spacing={2}>
+                <Grid item>
+                    <Avatar src="/logo.png" sx={{ width: 56, height: 56 }} />
+                </Grid>
+                <Grid item>
+                    <Typography variant="body1">{editedProfile.name}</Typography>
+                    <Typography variant="body2" color="textSecondary">{editedProfile.role}</Typography>
+                    <Typography variant="body2" color="textSecondary">{editedProfile.email}</Typography>
+                    <Typography variant="body2" color="textSecondary">{editedProfile.department}</Typography>
+                </Grid>
+            </Grid>
+            <Box sx={{ mt: 2 }}>
+                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'Ephesis, cursive', fontSize: '24px' }}>
+                    {editedProfile.signature}
+                </Typography>
+            </Box>
+          </Box>
         </CardContent>
       </Card>
     </Box>
