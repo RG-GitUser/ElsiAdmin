@@ -188,7 +188,7 @@ function Profile() {
                 name="signature"
                 fullWidth
                 multiline
-                rows={2} // Reduced from 4 to 2
+                rows={4}
                 value={editedProfile.signature || ''}
                 disabled={!isEditing}
                 onChange={handleChange}
@@ -199,15 +199,17 @@ function Profile() {
             <Typography variant="h6" gutterBottom>Signature Preview</Typography>
             <Grid container spacing={2}>
                 <Grid item>
-                    <Avatar src="/assets/elsipogtoglogo.png" sx={{ width: 56, height: 56 }} />
+                    <Avatar src="/logo.png" sx={{ width: 56, height: 56 }} />
                 </Grid>
                 <Grid item>
                     <Typography variant="body1">{editedProfile.name}</Typography>
                     <Typography variant="body2" color="textSecondary">{editedProfile.role}</Typography>
+                    <Typography variant="body2" color="textSecondary">{editedProfile.email}</Typography>
+                    <Typography variant="body2" color="textSecondary">{editedProfile.department}</Typography>
                 </Grid>
             </Grid>
             <Box sx={{ mt: 2 }}>
-                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'Ephesis, cursive', fontSize: '18px' }}>
+                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'Ephesis, cursive', fontSize: '24px' }}>
                     {editedProfile.signature}
                 </Typography>
             </Box>

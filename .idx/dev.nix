@@ -13,9 +13,6 @@
     pkgs.alsa-lib
     pkgs.libxkbcommon
     pkgs.nspr
-    pkgs.fakeroot # Required for electron-builder
-    pkgs.dpkg # Required for electron-builder
-    pkgs.wine # Required for building Windows apps on Linux
   ];
   # Sets environment variables in the workspace
   env = {};
