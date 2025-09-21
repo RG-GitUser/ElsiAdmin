@@ -14,8 +14,6 @@ import {
   IconButton,
   Box,
   Typography,
-  Grid,
-  Avatar
 } from "@mui/material";
 import { Add, Delete } from "@mui/icons-material";
 import useTemplatesStore from "../store/templatesStore";
@@ -101,16 +99,12 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
         folder,
         customFields,
         createdBy: creatorName,
-        createdAt: new Date().toLocaleDateString(),
+        createdAt: new Date().toLocaleString(),
       };
       addTemplate(newTemplate);
     }
     onClose();
   };
-
-  const signatureName = userData ? userData.name : (user ? user.displayName : 'Your Name');
-  const signatureRole = userData ? userData.role : 'Your Role';
-  const signatureCursive = userData ? userData.signature : 'Your Signature';
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -193,24 +187,14 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
         </Button>
 
         <Box sx={{ mt: 4, p: 2, border: '1px solid #ccc', borderRadius: '4px' }}>
-          <Typography variant="h6" gutterBottom>Signature Preview</Typography>
-            <Grid container spacing={2}>
-                <Grid item>
-                    <Avatar src="/assets/elsipogtoglogo.png" sx={{ width: 56, height: 56 }} />
-                </Grid>
-                <Grid item>
-                    <Typography variant="body1">{signatureName}</Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {signatureRole}
-                    </Typography>
-                </Grid>
-            </Grid>
-            <Box sx={{ mt: 2 }}>
-                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'Ephesis, cursive', fontSize: '24px' }}>
-                    {signatureCursive}
-                </Typography>
-            </Box>
-          </Box>
+          <Typography variant="h6" gutterBottom>Template Information</Typography>
+          <Typography variant="body1">
+            Created by: {template ? template.createdBy : (userData ? userData.name : (user ? user.displayName : ''))}
+          </Typography>
+          <Typography variant="body1">
+            Creation time: {template ? template.createdAt : new Date().toLocaleString()}
+          </Typography>
+        </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>

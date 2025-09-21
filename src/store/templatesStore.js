@@ -7,8 +7,6 @@ import {
   updateDoc,
   deleteDoc,
   doc,
-  query,
-  where
 } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { getAuth } from 'firebase/auth';
@@ -24,14 +22,11 @@ const useTemplatesStore = create((set) => ({
       const auth = getAuth();
       const user = auth.currentUser;
       if (user) {
-        // Simplified query: ONLY fetch templates owned by the current user.
         const templatesCollectionRef = collection(db, 'templates');
-        const q = query(templatesCollectionRef, where('owner', '==', user.uid));
-        const querySnapshot = await getDocs(q);
-        const userTemplates = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), folder: doc.data().folder || '' }));
-        set({ templates: userTemplates, loading: false });
+        const querySnapshot = await getDocs(templatesCollectionRef);
+        const allTemplates = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), folder: doc.data().folder || '' }));
+        set({ templates: allTemplates, loading: false });
       } else {
-        // If no user is logged in, no templates will be fetched.
         set({ templates: [], loading: false });
       }
     } catch (error) {
@@ -46,7 +41,6 @@ const useTemplatesStore = create((set) => ({
       const auth = getAuth();
       const user = auth.currentUser;
       if (user) {
-        // Templates are private by default, removing all public/sharing logic.
         const newTemplate = { ...template, owner: user.uid, folder: template.folder || '' };
         const docRef = await addDoc(collection(db, 'templates'), newTemplate);
         set((state) => ({

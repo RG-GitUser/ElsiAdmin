@@ -4,22 +4,23 @@ import {
   Typography,
   CircularProgress,
   Alert,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
 } from '@mui/material';
 import useUsersStore from '../store/usersStore';
+import { getAuth } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
 function Users() {
   const { users, loading, error, fetchUsers } = useUsersStore();
+  const auth = getAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    if (!auth.currentUser) {
+      navigate('/login');
+    } else {
+      fetchUsers();
+    }
+  }, [auth, fetchUsers, navigate]);
 
   return (
     <Box>
@@ -28,31 +29,17 @@ function Users() {
       </Typography>
       {loading && <CircularProgress />}
       {error && <Alert severity="error">{error}</Alert>}
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Display Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>UID</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+      {
+        !loading && !error && (
+          <ul>
             {users.map((user) => (
-              <TableRow
-                key={user.uid}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  {user.displayName}
-                </TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.uid}</TableCell>
-              </TableRow>
+              <li key={user.id}>
+                {user.displayName} - {user.email}
+              </li>
             ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          </ul>
+        )
+      }
     </Box>
   );
 }
