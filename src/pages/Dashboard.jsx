@@ -126,69 +126,70 @@ const Dashboard = () => {
     { text: "Permissions", icon: <AdminPanelSettingsIcon />, path: "/permissions", adminOnly: true },
     { text: "Analytics", icon: <AnalyticsIcon />, path: "/analytics" },
     { text: "Settings", icon: <SettingsIcon />, path: "/settings" },
+    { text: "Documents", icon: <DescriptionIcon />, path: "/documents" },
   ];
 
   const menuItems = allMenuItems.filter(item => !item.adminOnly || isAdmin);
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-      <StyledAppBar position="fixed" open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{ mr: 2, ...(open && { display: "none" }) }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Elsipogtog Employee Dashboard
-          </Typography>
-          <FormControlLabel
+      <Box sx={{ display: "flex" }}>
+        <CssBaseline />
+        <StyledAppBar position="fixed" open={open}>
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              sx={{ mr: 2, ...(open && { display: "none" }) }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+              Elsipogtog Employee Dashboard
+            </Typography>
+            <FormControlLabel
             control={<Switch checked={mode === 'dark'} onChange={toggleMode} />}
             label="Dark Mode"
           />
-          <IconButton color="inherit" onClick={handleLogout}>
-            <ExitToAppIcon />
-          </IconButton>
-        </Toolbar>
-      </StyledAppBar>
-      <Drawer
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
+            <IconButton color="inherit" onClick={handleLogout}>
+              <ExitToAppIcon />
+            </IconButton>
+          </Toolbar>
+        </StyledAppBar>
+        <Drawer
+          sx={{
             width: drawerWidth,
-            boxSizing: "border-box",
-          },
-        }}
-        variant="persistent"
-        anchor="left"
-        open={open}
-      >
-        <DrawerHeader>
-            <img src="/assets/elsipogtoglogo.png" alt="Elsipogtog Employee Dashboard Logo" style={{ height: '40px'}} />
-          <IconButton onClick={handleDrawerClose} sx={{ position: 'absolute', right: 8 }}>
-            <ChevronLeftIcon />
-          </IconButton>
-        </DrawerHeader>
-        <List>
-          {menuItems.map((item) => (
-            <ListItemButton key={item.text} onClick={() => navigate(item.path)}>
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          ))}
-        </List>
-      </Drawer>
-      <Main open={open}>
-        <DrawerHeader />
-        <Outlet />
-      </Main>
-    </Box>
+            flexShrink: 0,
+            "& .MuiDrawer-paper": {
+              width: drawerWidth,
+              boxSizing: "border-box",
+            },
+          }}
+          variant="persistent"
+          anchor="left"
+          open={open}
+        >
+          <DrawerHeader>
+              <img src="/assets/elsipogtoglogo.png" alt="Elsipogtog Employee Dashboard Logo" style={{ height: '40px'}} />
+            <IconButton onClick={handleDrawerClose} sx={{ position: 'absolute', right: 8 }}>
+              <ChevronLeftIcon />
+            </IconButton>
+          </DrawerHeader>
+          <List>
+            {menuItems.map((item) => (
+              <ListItemButton key={item.text} onClick={() => navigate(item.path)}>
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItemButton>
+            ))}
+          </List>
+        </Drawer>
+        <Main open={open}>
+          <DrawerHeader />
+          <Outlet />
+        </Main>
+      </Box>
   );
 };
 

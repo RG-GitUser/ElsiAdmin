@@ -7,12 +7,14 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import DashboardHome from "./pages/DashboardHome";
 import Users from "./pages/Users";
 import Templates from "./pages/Templates";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import Permissions from "./pages/Permissions";
 import Analytics from "./pages/Analytics";
+import Documents from "./pages/Documents";
 
 function App() {
   const { mode } = useThemeStore();
@@ -39,13 +41,14 @@ function App() {
           <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
           <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/" />} />
           <Route path="/" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}>
-            <Route index element={<Templates />} />
+            <Route index element={<DashboardHome />} />
             <Route path="users" element={<Users />} />
             <Route path="templates" element={<Templates />} />
             <Route path="settings" element={<Settings />} />
             <Route path="profile/:userId" element={<Profile />} />
             <Route path="permissions" element={<Permissions />} />
             <Route path="analytics" element={<Analytics />} />
+            <Route path="documents" element={<Documents />} />
           </Route>
         </Routes>
       </BrowserRouter>
