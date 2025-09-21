@@ -199,7 +199,7 @@ function Profile() {
             <Typography variant="h6" gutterBottom>Signature Preview</Typography>
             <Grid container spacing={2}>
                 <Grid item>
-                    <Avatar src="/logo.png" sx={{ width: 56, height: 56 }} />
+                    <Avatar src="/assets/elsipogtoglogo.png" sx={{ width: 56, height: 56 }} />
                 </Grid>
                 <Grid item>
                     <Typography variant="body1">{editedProfile.name}</Typography>
