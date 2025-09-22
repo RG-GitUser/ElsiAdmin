@@ -149,6 +149,7 @@ const Dashboard = () => {
         <StyledAppBar position="fixed" open={open} sx={{
           boxShadow: 'none',
           borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+          backgroundColor: '#212121',
         }}>
           <Toolbar>
             <IconButton

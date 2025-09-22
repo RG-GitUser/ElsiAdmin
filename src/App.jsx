@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
@@ -16,6 +17,9 @@ import Profile from "./pages/Profile";
 import Permissions from "./pages/Permissions";
 import Analytics from "./pages/Analytics";
 import Documents from "./pages/Documents";
+import TextEditor from "./pages/TextEditor";
+import MarkdownEditor from "./pages/MarkdownEditor";
+import SpreadsheetEditor from "./pages/SpreadsheetEditor";
 
 function App() {
   const { mode } = useThemeStore();
@@ -48,6 +52,9 @@ function App() {
             <Route path="permissions" element={<Permissions />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="documents" element={<Documents />} />
+            <Route path="text-editor" element={<TextEditor />} />
+            <Route path="markdown-editor" element={<MarkdownEditor />} />
+            <Route path="spreadsheet-editor" element={<SpreadsheetEditor />} />
           </Route>
         </Routes>
       </BrowserRouter>

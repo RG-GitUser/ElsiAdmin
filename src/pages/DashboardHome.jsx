@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Grid,
     Paper,
@@ -22,31 +22,42 @@ import {
     Edit,
     PersonAdd
 } from '@mui/icons-material';
+import CreateDocumentModal from '../components/CreateDocumentModal';
 
 const DashboardHome = () => {
+    const [openCreateModal, setOpenCreateModal] = useState(false);
+
+    const handleOpenCreateModal = () => {
+        setOpenCreateModal(true);
+    };
+
+    const handleCloseCreateModal = () => {
+        setOpenCreateModal(false);
+    };
+
     const metrics = [
         {
             title: 'Active Users',
             value: '1,234',
-            icon: <People fontSize="large" />,
+            icon: <People fontSize="medium" />,
             color: '#3f51b5',
         },
         {
             title: 'Documents',
             value: '5,678',
-            icon: <Description fontSize="large" />,
+            icon: <Description fontSize="medium" />,
             color: '#f50057',
         },
         {
             title: 'Templates',
             value: '90',
-            icon: <Folder fontSize="large" />,
+            icon: <Folder fontSize="medium" />,
             color: '#ff9800',
         },
         {
             title: 'Engagement',
             value: '85%',
-            icon: <BarChart fontSize="large" />,
+            icon: <BarChart fontSize="medium" />,
             color: '#4caf50',
         },
     ];
@@ -72,16 +83,13 @@ const DashboardHome = () => {
                     p: 4,
                     mb: 4,
                     borderRadius: 4,
-                    backgroundColor: '#212121',
+                    background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
                     color: '#fff',
                     boxShadow: '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)',
                 }}
             >
                 <Typography variant="h4" component="h1" gutterBottom sx={{
                     fontWeight: 'bold',
-                    background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
                 }}>
                     Welcome Back!
                 </Typography>
@@ -98,16 +106,20 @@ const DashboardHome = () => {
                             sx={{
                                 p: 3,
                                 display: 'flex',
+                                flexDirection: 'column',
                                 alignItems: 'center',
-                                justifyContent: 'space-between',
                                 borderRadius: 4,
                                 boxShadow: '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)',
                                 transition: 'transform 0.3s',
                                 '&:hover': {
                                     transform: 'translateY(-5px)',
                                 },
+                                textAlign: 'center',
                             }}
                         >
+                            <Avatar sx={{ bgcolor: metric.color, width: 48, height: 48, mb: 2 }}>
+                                {metric.icon}
+                            </Avatar>
                             <Box>
                                 <Typography color="textSecondary" gutterBottom variant="subtitle1">
                                     {metric.title}
@@ -116,9 +128,6 @@ const DashboardHome = () => {
                                     {metric.value}
                                 </Typography>
                             </Box>
-                            <Avatar sx={{ bgcolor: metric.color, width: 56, height: 56 }}>
-                                {metric.icon}
-                            </Avatar>
                         </Paper>
                     </Grid>
                 ))}
@@ -158,7 +167,7 @@ const DashboardHome = () => {
                             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                                 Start from a blank page or a template.
                             </Typography>
-                            <Button variant="contained">Create</Button>
+                            <Button variant="contained" onClick={handleOpenCreateModal}>Create</Button>
                         </Paper>
 
                         <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', mt: 2 }}>
@@ -205,6 +214,7 @@ const DashboardHome = () => {
                 </Grid>
 
             </Grid>
+            <CreateDocumentModal open={openCreateModal} handleClose={handleCloseCreateModal} />
         </Box>
     );
 };
