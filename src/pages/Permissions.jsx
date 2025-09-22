@@ -1,119 +1,95 @@
 
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
 import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  CircularProgress,
-  Select,
-  MenuItem,
-  FormControl,
-} from "@mui/material";
-import { getFirestore, collection, getDocs, doc, updateDoc } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+    Box,
+    Paper,
+    Typography,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Select,
+    MenuItem,
+    Button
+} from '@mui/material';
+
+const mockUsers = [
+    { id: 1, name: 'John Doe', email: 'john.doe@example.com', role: 'Admin' },
+    { id: 2, name: 'Jane Smith', email: 'jane.smith@example.com', role: 'Editor' },
+    { id: 3, name: 'Peter Jones', email: 'peter.jones@example.com', role: 'Viewer' },
+];
+
+const roles = ['Admin', 'Editor', 'Viewer'];
 
 const Permissions = () => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
-  const db = getFirestore();
-  const auth = getAuth();
-  const navigate = useNavigate();
+    const [userRoles, setUserRoles] = useState(
+        mockUsers.reduce((acc, user) => {
+            acc[user.id] = user.role;
+            return acc;
+        }, {})
+    );
 
-  useEffect(() => {
-    const checkSuperAdminStatusAndFetchUsers = async () => {
-      const user = auth.currentUser;
-      if (user) {
-        await user.getIdToken(true); // Force refresh the token to get latest claims
-        const idTokenResult = await user.getIdTokenResult();
-
-        // Check for the isSuperAdmin custom claim
-        if (idTokenResult.claims.isSuperAdmin === true) {
-          setIsSuperAdmin(true);
-          const usersCollectionRef = collection(db, "users");
-          const usersSnapshot = await getDocs(usersCollectionRef);
-          const usersList = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setUsers(usersList);
-        } else {
-          // If not a super admin, redirect
-          navigate("/");
-        }
-      } else {
-        navigate("/login");
-      }
-      setLoading(false);
+    const handleRoleChange = (userId, newRole) => {
+        setUserRoles((prevRoles) => ({
+            ...prevRoles,
+            [userId]: newRole,
+        }));
     };
 
-    checkSuperAdminStatusAndFetchUsers();
-  }, [auth, db, navigate]);
+    const handleSaveChanges = () => {
+        // Here you would typically send the updated roles to your backend
+        console.log('Saving changes:', userRoles);
+        alert('Changes saved successfully!');
+    };
 
-  const handleRoleChange = async (userId, newRole) => {
-    const userDocRef = doc(db, "users", userId);
-    await updateDoc(userDocRef, { role: newRole.toLowerCase() });
-    setUsers(users.map(u => (u.id === userId ? { ...u, role: newRole } : u)));
-  };
-
-  if (loading) {
-    return <CircularProgress />;
-  }
-
-  if (!isSuperAdmin) {
-    // Render nothing or a redirection message if not a super admin
-    return null;
-  }
-
-  return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Permissions Management
-      </Typography>
-      <Card>
-        <CardContent>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Role</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {users.map((u) => (
-                  <TableRow key={u.id}>
-                    <TableCell>{u.name}</TableCell>
-                    <TableCell>{u.email}</TableCell>
-                    <TableCell>
-                      <FormControl fullWidth>
-                        <Select
-                          value={u.role || 'user'}
-                          onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                          // Disable changing role for the super admin themselves
-                          disabled={u.uid === auth.currentUser.uid}
-                        >
-                          <MenuItem value="user">User</MenuItem>
-                          <MenuItem value="admin">Admin</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
-    </Box>
-  );
+    return (
+        <Box sx={{ p: 3 }}>
+            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+                User Permissions
+            </Typography>
+            <Paper sx={{ borderRadius: 4, boxShadow: '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)' }}>
+                <TableContainer>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Name</TableCell>
+                                <TableCell>Email</TableCell>
+                                <TableCell>Role</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {mockUsers.map((user) => (
+                                <TableRow key={user.id}>
+                                    <TableCell>{user.name}</TableCell>
+                                    <TableCell>{user.email}</TableCell>
+                                    <TableCell>
+                                        <Select
+                                            value={userRoles[user.id]}
+                                            onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                                            sx={{ minWidth: 120 }}
+                                        >
+                                            {roles.map((role) => (
+                                                <MenuItem key={role} value={role}>
+                                                    {role}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </Paper>
+            <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                <Button variant="contained" color="primary" onClick={handleSaveChanges}>
+                    Save Changes
+                </Button>
+            </Box>
+        </Box>
+    );
 };
 
 export default Permissions;

@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Modal,
     Box,
@@ -9,13 +8,13 @@ import {
     Step,
     StepLabel,
     List,
-    ListItem,
     ListItemButton,
     ListItemIcon,
     ListItemText
 } from '@mui/material';
 import { Folder, Article, Description, TableChart } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import useDocumentStore from '../store/documentStore';
 
 const style = {
     position: 'absolute',
@@ -31,13 +30,6 @@ const style = {
 
 const steps = ['Select Folder', 'Choose Document Type'];
 
-// Mock folder data
-const folders = [
-    { id: 1, name: 'Personal' },
-    { id: 2, name: 'Work' },
-    { id: 3, name: 'Projects' },
-];
-
 const documentTypes = [
     { name: 'Text Page', icon: <Article />, path: '/text-editor' },
     { name: 'Markdown', icon: <Description />, path: '/markdown-editor' },
@@ -45,9 +37,23 @@ const documentTypes = [
 ];
 
 const CreateDocumentModal = ({ open, handleClose }) => {
+    const fileSystem = useDocumentStore((state) => state.fileSystem);
     const [activeStep, setActiveStep] = useState(0);
     const [selectedFolder, setSelectedFolder] = useState(null);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!open) {
+            setActiveStep(0);
+            setSelectedFolder(null);
+        }
+    }, [open]);
+
+    const folders = fileSystem.root && fileSystem.root.children ?
+        Object.keys(fileSystem.root.children)
+            .filter(key => fileSystem.root.children[key].type === 'folder')
+            .map(name => ({ id: name, name }))
+        : [];
 
     const handleSelectFolder = (folder) => {
         setSelectedFolder(folder);

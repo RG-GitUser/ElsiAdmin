@@ -11,35 +11,33 @@ import {
   IconButton,
   TextField,
   Paper,
-  Collapse,
+  Collapse
 } from "@mui/material";
-import {
-  Edit,
-  Delete,
-  Folder,
-  ExpandMore,
-  ChevronRight,
-  Share,
-  PictureAsPdf,
-} from "@mui/icons-material";
+import { Edit, Delete, Folder, ExpandMore, ChevronRight, Share, PictureAsPdf } from "@mui/icons-material";
 import useTemplatesStore from "../store/templatesStore";
 import TemplateDialog from "../components/TemplateDialog";
 import ShareTemplateDialog from "../components/ShareTemplateDialog";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
-import exportPDF from "../utils/exportPDF";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const templateFolders = [
-  "Demo",
-  "Health",
-  "Social Work",
-  "Education",
-  "Administration",
-];
+    "Demo",
+    "Health",
+    "Social Work",
+    "Education",
+    "Administration",
+  ];
 
 function Templates() {
-  const { templates, loading, error, fetchTemplates, deleteTemplate } =
-    useTemplatesStore();
+  const {
+    templates,
+    loading,
+    error,
+    fetchTemplates,
+    deleteTemplate,
+  } = useTemplatesStore();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -99,8 +97,31 @@ function Templates() {
     setOpenFolder(openFolder === folder ? null : folder);
   };
 
-  const handleExport = (template) => {
-    exportPDF(template);
+  const handleExportAll = () => {
+    const dataStr = JSON.stringify(templates, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+
+    const exportFileDefaultName = 'templates.json';
+
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  }
+
+  const handleExportPdf = (template) => {
+    const input = document.createElement('div');
+    input.innerHTML = template.content;
+    document.body.appendChild(input);
+    
+    html2canvas(input)
+      .then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF();
+        pdf.addImage(imgData, 'PNG', 0, 0);
+        pdf.save(`${template.name}.pdf`);
+        document.body.removeChild(input);
+      });
   };
 
   const filteredTemplates = templates.filter(
@@ -115,128 +136,114 @@ function Templates() {
 
   return (
     <Box>
-      <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: 'background.paper', py: 2 }}>
-        <Typography variant="h4" gutterBottom>
-          Templates
-        </Typography>
-
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <TextField
-            label="Search"
-            variant="outlined"
-            size="small"
-            value={searchTerm}
-            onChange={handleSearchChange}
-            sx={{ width: "300px" }}
-          />
-          {canCreateTemplate && (
+      <Typography variant="h4" gutterBottom>
+        Templates
+      </Typography>
+      
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 2 }}>
+        <TextField
+          label="Search"
+          variant="outlined"
+          size="small"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          sx={{ width: '300px' }}
+        />
+        <Box sx={{ ml: 'auto', display: 'flex', gap: 1}}>
             <Button
-              variant="contained"
-              sx={{ backgroundColor: '#2196f3' }} // Beautiful Blue
-              onClick={() => handleOpenDialog()}
+            variant="outlined"
+            onClick={handleExportAll}
             >
-              Create New Template
+            Export All
             </Button>
-          )}
+            {canCreateTemplate && (
+                <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleOpenDialog()}
+                >
+                Create New Template
+                </Button>
+            )}
         </Box>
       </Box>
 
-      <Box sx={{ pt: 2 }}>
+      <Box>
         {templateFolders.map((folder) => (
-          <Box key={folder} sx={{ mb: 2 }}>
-            <Paper
-              elevation={3}
-              sx={{
-                p: 2,
-                display: "flex",
-                alignItems: "center",
-                cursor: "pointer",
-                "&:hover": {
-                  backgroundColor: "rgba(0, 0, 0, 0.04)",
-                },
-              }}
-              onClick={() => handleFolderClick(folder)}
-            >
-              {openFolder === folder ? (
-                <ExpandMore sx={{ mr: 2 }} />
-              ) : (
-                <ChevronRight sx={{ mr: 2 }} />
-              )}
-              <Folder sx={{ mr: 2, color: '#2196f3' }} />
-              <Typography variant="h6">{folder}</Typography>
+            <Paper key={folder} elevation={3} sx={{ borderRadius: 2, mb: 2 }}>
+                <Box
+                sx={{
+                    p: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    "&:hover": {
+                    backgroundColor: "rgba(0, 0, 0, 0.04)",
+                    },
+                    borderTopLeftRadius: 'inherit',
+                    borderTopRightRadius: 'inherit',
+                }}
+                onClick={() => handleFolderClick(folder)}
+                >
+                {openFolder === folder ? <ExpandMore sx={{ mr: 1 }} /> : <ChevronRight sx={{ mr: 1 }} />}
+                <Folder sx={{ mr: 1 }} />
+                <Typography variant="h6">{folder}</Typography>
+                </Box>
+                <Collapse in={openFolder === folder} timeout="auto" unmountOnExit>
+                <List dense sx={{ py: 1 }}>
+                    {filteredTemplates
+                    .filter((template) => template.folder === folder)
+                    .map((template) => (
+                        <ListItemButton
+                        key={template.id}
+                        onClick={() => handleOpenDialog(template)}
+                        sx={{ pl: 4, mx: 2, borderRadius: 1}}
+                        >
+                        <ListItemText
+                            primary={template.name || "N/A"}
+                            secondary={template.description || "N/A"}
+                        />
+                        {(user && template.owner === user.uid) || userRole.toLowerCase() === 'admin' ? (
+                            <Box sx={{ display: 'flex'}}>
+                                <IconButton
+                                edge="end"
+                                aria-label="edit"
+                                size="small"
+                                onClick={(e) => {e.stopPropagation(); handleOpenDialog(template)} }
+                                >
+                                <Edit fontSize="small"/>
+                                </IconButton>
+                                <IconButton
+                                edge="end"
+                                aria-label="share"
+                                size="small"
+                                onClick={(e) => {e.stopPropagation(); handleOpenShareDialog(template)} }
+                                >
+                                <Share fontSize="small"/>
+                                </IconButton>
+                                <IconButton
+                                edge="end"
+                                aria-label="export"
+                                size="small"
+                                onClick={(e) => {e.stopPropagation(); handleExportPdf(template)} }
+                                >
+                                <PictureAsPdf fontSize="small"/>
+                                </IconButton>
+                                <IconButton
+                                edge="end"
+                                aria-label="delete"
+                                size="small"
+                                onClick={(e) => {e.stopPropagation(); deleteTemplate(template.id)} }
+                                >
+                                <Delete fontSize="small"/>
+                                </IconButton>
+                            </Box>
+                            ) : null}
+                        </ListItemButton>
+                    ))}
+                </List>
+                </Collapse>
             </Paper>
-            <Collapse in={openFolder === folder} timeout="auto" unmountOnExit>
-              <List>
-                {filteredTemplates
-                  .filter((template) => template.folder === folder)
-                  .map((template) => (
-                    <ListItemButton
-                      key={template.id}
-                      onClick={() => handleOpenDialog(template)}
-                    >
-                      <ListItemText
-                        primary={template.name || "N/A"}
-                        secondary={template.description || "N/A"}
-                      />
-                      {(user && template.owner === user.uid) ||
-                      userRole.toLowerCase() === "admin" ? (
-                        <>
-                          <IconButton
-                            edge="end"
-                            aria-label="edit"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenDialog(template);
-                            }}
-                          >
-                            <Edit />
-                          </IconButton>
-                          <IconButton
-                            edge="end"
-                            aria-label="share"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenShareDialog(template);
-                            }}
-                            sx={{ ml: 1 }}
-                          >
-                            <Share />
-                          </IconButton>
-                          <IconButton
-                            edge="end"
-                            aria-label="export"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleExport(template);
-                            }}
-                            sx={{ ml: 1 }}
-                          >
-                            <PictureAsPdf />
-                          </IconButton>
-                          <IconButton
-                            edge="end"
-                            aria-label="delete"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteTemplate(template.id);
-                            }}
-                            sx={{ ml: 1 }}
-                          >
-                            <Delete />
-                          </IconButton>
-                        </>
-                      ) : null}
-                    </ListItemButton>
-                  ))}
-              </List>
-            </Collapse>
-          </Box>
         ))}
       </Box>
 
