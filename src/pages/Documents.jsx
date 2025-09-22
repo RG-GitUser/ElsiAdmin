@@ -228,7 +228,7 @@ function Documents() {
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete "{itemToDelete}"? This action cannot be undone.
+            Are you sure you want to delete &quot;{itemToDelete}&quot;? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

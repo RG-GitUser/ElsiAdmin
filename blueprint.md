@@ -1,45 +1,63 @@
-# Project Blueprint
+# Elsi - AI-Powered Ticket Support System
 
 ## Overview
 
-This project is a comprehensive **Elsipogtog Employee Dashboard**. It serves as a central hub for managing employee information, roles, and for viewing key analytics. The application features a role-based access control system, allowing different levels of access for employees, managers, and administrators.
+Elsi is a modern, AI-powered ticket support system designed to streamline customer service and issue resolution. This document outlines the plan for creating a new ticket support page within the Elsi application.
 
-## Implemented Features
+## Current Project Status
 
-*   Firebase Authentication with email and password.
-*   Firestore database for storing user data.
-*   Role-based access control (in progress).
-*   Light/Dark mode theme.
-*   A responsive sidebar for navigation.
+### Implemented Features:
 
-## Current Plan: Employee Dashboard Overhaul
+*   **Authentication:** User login and registration functionality.
+*   **Dashboard:** A central hub for users to access various features.
+*   **Document Management:** A system for creating, editing, and managing documents.
+*   **User Management:** A page for viewing and managing users.
+*   **Settings:** A page for configuring application settings.
+*   **Ticket Support:** A page for creating and managing support tickets.
 
-The following steps will be taken to build out the full dashboard functionality:
+### Design and Styling:
 
-1.  **Rebrand Dashboard:**
-    *   Rename the main dashboard title to "Elsipogtog Employee Dashboard".
-2.  **Enhance User Profiles:**
-    *   Extend the user data model in Firestore to include:
-        *   `department`
-        *   `employeeId`
-        *   `role` (e.g., 'employee', 'manager', 'admin')
-    *   Create a "My Profile" page where users can view and update this information.
-3.  **Add New Navigation Links:**
-    *   Update the sidebar to include: "My Profile", "Permissions Management", and "Analytics".
-4.  **Build Permissions Management Page:**
-    *   Create a page accessible only to 'managers' and 'admins'.
-    *   This page will allow them to:
-        *   Search for any user.
-        *   View a list of all users.
-        *   Modify the `role` of other users.
-5.  **Integrate Firebase Analytics:**
-    *   Install and configure the Firebase Analytics SDK.
-    *   Create a basic "Analytics" page to confirm integration.
-6.  **Refine Security Rules:**
-    *   Update Firestore security rules to enforce the new role-based permissions:
-        *   Users can only read and write to their own profile.
-        *   Managers and admins can read all user data and update specific fields like `role`.
-7. **Export Templates to PDF**
-    * Install `jspdf` and `html2canvas` to enable exporting templates to PDF.
-    * Add an export button to each template item.
-    * Implement the logic to convert the template content to a PDF and download it.
+*   **Component Library:** Material-UI for a consistent and modern look and feel.
+*   **Theming:** A custom theme with a purple color palette.
+*   **Layout:** A responsive dashboard layout with a sidebar for navigation.
+
+## Plan: Ticket Support Page
+
+This section outlines the plan for creating the new ticket support page.
+
+### 1. Routing
+
+*   A new route has been added to the main application router (`src/App.jsx`) to handle the ticket support page:
+    *   `path="/support"` renders the `TicketSupport` component.
+*   The old `/tickets` route has been removed.
+
+### 2. Components
+
+*   **`TicketSupport.jsx` (Page Component):**
+    *   This is the main component for the ticket support page.
+    *   It contains a button to open a new ticket dialog and a table for displaying existing tickets.
+*   **`TicketDialog.jsx` (Component):**
+    *   A dialog for creating a new ticket.
+    *   Fields include: Title, Description, and Priority (Low, Medium, High).
+*   **`TicketsTable.jsx` (Component):**
+    *   A table for displaying a list of existing tickets.
+    *   Columns will include: Ticket ID, Title, Priority, Status (Open, In Progress, Closed), and Date Created.
+*   **`Dashboard.jsx` (Component):**
+    *   The dashboard navigation has been updated to include a link to the new "Support" page.
+
+### 3. State Management
+
+*   A new Zustand store has been created to manage the state of the tickets (`src/store/ticketsStore.js`).
+*   The store will handle:
+    *   Fetching tickets from a data source (initially a mock data file, later a Firebase backend).
+    *   Adding new tickets.
+    *   Updating the status of existing tickets.
+
+### 4. Styling
+
+*   The new components will be styled using Material-UI to match the existing design of the application.
+*   The `TicketsTable.jsx` component will use the Material-UI `Table` component.
+
+### 5. Mock Data
+
+*   Initially, a mock data file (`src/data/tickets.js`) will be created to provide data for the `TicketsTable.jsx` component. This will allow for the development and testing of the UI without a live backend.

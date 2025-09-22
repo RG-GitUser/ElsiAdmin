@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
@@ -20,6 +19,7 @@ import Documents from "./pages/Documents";
 import TextEditor from "./pages/TextEditor";
 import MarkdownEditor from "./pages/MarkdownEditor";
 import SpreadsheetEditor from "./pages/SpreadsheetEditor";
+import TicketSupport from "./pages/TicketSupport";
 
 function App() {
   const { mode } = useThemeStore();
@@ -34,7 +34,7 @@ function App() {
   }, [auth, setUser]);
 
   if (loading) {
-    return <div>Loading...</div>; 
+    return <div>Loading...</div>;
   }
 
   return (
@@ -47,6 +47,7 @@ function App() {
             <Route index element={<DashboardHome />} />
             <Route path="users" element={<Users />} />
             <Route path="templates" element={<Templates />} />
+            <Route path="support" element={<TicketSupport />} />
             <Route path="settings" element={<Settings />} />
             <Route path="profile/:userId" element={<Profile />} />
             <Route path="permissions" element={<Permissions />} />

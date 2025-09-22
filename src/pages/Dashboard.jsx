@@ -26,6 +26,7 @@ import {
   AccountCircleRounded,
   BarChartRounded,
   AdminPanelSettingsRounded,
+  ConfirmationNumberRounded as TicketIcon
 } from "@mui/icons-material";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { styled } from "@mui/material/styles";
@@ -127,13 +128,15 @@ const Dashboard = () => {
     Permissions: '#8A2BE2', // BlueViolet
     Analytics: '#FF4500', // OrangeRed
     Settings: '#9932CC', // DarkOrchid
-    Documents: '#4682B4', // SteelBlue
+    Documents: '#4682B4', // SteelBlue,
+    Support: '#FF69B4' // HotPink
 };
 
   const allMenuItems = [
     { text: "Dashboard", icon: <HomeRounded />, path: "/", color: iconColors.Dashboard },
     { text: "My Profile", icon: <AccountCircleRounded />, path: `/profile/${auth.currentUser.uid}`, color: iconColors['My Profile'] },
     { text: "Templates", icon: <ArticleRounded />, path: "/templates", color: iconColors.Templates },
+    { text: "Support", icon: <TicketIcon />, path: "/support", color: iconColors.Support },
     { text: "Users", icon: <PeopleAltRounded />, path: "/users", adminOnly: true, color: iconColors.Users },
     { text: "Permissions", icon: <AdminPanelSettingsRounded />, path: "/permissions", adminOnly: true, color: iconColors.Permissions },
     { text: "Analytics", icon: <BarChartRounded />, path: "/analytics", color: iconColors.Analytics },

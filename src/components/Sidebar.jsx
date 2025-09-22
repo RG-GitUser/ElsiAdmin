@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Drawer,
@@ -9,7 +8,7 @@ import {
   ListItemIcon,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import { Apps, People, Settings } from "@mui/icons-material";
+import { Apps, People, Settings, ConfirmationNumber } from "@mui/icons-material";
 import useAuthStore from "../store/authStore";
 
 const drawerWidth = 240;
@@ -33,6 +32,12 @@ function Sidebar() {
             <Apps />
           </ListItemIcon>
           <ListItemText primary="Templates" />
+        </ListItem>
+        <ListItem button component={Link} to="/support">
+          <ListItemIcon>
+            <ConfirmationNumber />
+          </ListItemIcon>
+          <ListItemText primary="Support" />
         </ListItem>
         {user && user.role === "admin" && (
           <ListItem button component={Link} to="/users">

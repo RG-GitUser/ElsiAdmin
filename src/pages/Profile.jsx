@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
 import {
@@ -22,7 +22,6 @@ function Profile() {
   const { userId: userIdFromParams } = useParams();
   const auth = getAuth();
   const db = getFirestore();
-  const navigate = useNavigate();
   const currentUser = auth.currentUser;
   const userId = userIdFromParams || currentUser?.uid;
 
@@ -198,20 +197,20 @@ function Profile() {
           <Box sx={{ mt: 4, p: 2, border: '1px solid #ccc', borderRadius: '4px' }}>
             <Typography variant="h6" gutterBottom>Signature Preview</Typography>
             <Grid container spacing={2}>
-                <Grid item>
-                    <Avatar src="/assets/elsipogtoglogo.png" sx={{ width: 56, height: 56 }} />
-                </Grid>
-                <Grid item>
-                    <Typography variant="body1">{editedProfile.name}</Typography>
-                    <Typography variant="body2" color="textSecondary">{editedProfile.role}</Typography>
-                    <Typography variant="body2" color="textSecondary">{editedProfile.email}</Typography>
-                    <Typography variant="body2" color="textSecondary">{editedProfile.department}</Typography>
-                </Grid>
+              <Grid item>
+                <Avatar src="/assets/elsipogtoglogo.png" sx={{ width: 56, height: 56 }} />
+              </Grid>
+              <Grid item>
+                <Typography variant="body1">{editedProfile.name}</Typography>
+                <Typography variant="body2" color="textSecondary">{editedProfile.role}</Typography>
+                <Typography variant="body2" color="textSecondary">{editedProfile.email}</Typography>
+                <Typography variant="body2" color="textSecondary">{editedProfile.department}</Typography>
+              </Grid>
             </Grid>
             <Box sx={{ mt: 2 }}>
-                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'Ephesis, cursive', fontSize: '24px' }}>
-                    {editedProfile.signature}
-                </Typography>
+              <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'Ephesis, cursive', fontSize: '24px' }}>
+                {editedProfile.signature}
+              </Typography>
             </Box>
           </Box>
         </CardContent>

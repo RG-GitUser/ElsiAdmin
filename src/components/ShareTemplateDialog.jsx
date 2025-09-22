@@ -33,7 +33,8 @@ function ShareTemplateDialog({ open, onClose, template }) {
         const userSnapshot = await getDocs(usersCol);
         const userList = userSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setUsers(userList);
-      } catch (err) {
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
         setError('Failed to fetch users.');
       }
       setLoading(false);
