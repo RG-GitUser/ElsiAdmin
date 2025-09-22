@@ -42,6 +42,7 @@ This section outlines the plan for creating the new ticket support page.
 *   **`TicketsTable.jsx` (Component):**
     *   A table for displaying a list of existing tickets.
     *   Columns will include: Ticket ID, Title, Priority, Status (Open, In Progress, Closed), and Date Created.
+    *   A delete button has been added to each row to allow for the deletion of tickets. A confirmation dialog is included to prevent accidental deletions.
 *   **`Dashboard.jsx` (Component):**
     *   The dashboard navigation has been updated to include a link to the new "Support" page.
 
@@ -52,6 +53,7 @@ This section outlines the plan for creating the new ticket support page.
     *   Fetching tickets from a data source (initially a mock data file, later a Firebase backend).
     *   Adding new tickets.
     *   Updating the status of existing tickets.
+    *   Deleting tickets.
 
 ### 4. Styling
 

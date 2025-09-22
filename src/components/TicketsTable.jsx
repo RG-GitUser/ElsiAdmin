@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -10,11 +10,37 @@ import {
   Chip,
   Select,
   MenuItem,
+  IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
 } from '@mui/material';
+import { Delete as DeleteIcon } from '@mui/icons-material';
 import useTicketsStore from '../store/ticketsStore';
 
 const TicketsTable = () => {
-  const { tickets, updateTicketStatus } = useTicketsStore();
+  const { tickets, updateTicketStatus, deleteTicket } = useTicketsStore();
+  const [open, setOpen] = useState(false);
+  const [ticketToDelete, setTicketToDelete] = useState(null);
+
+  const handleClickOpen = (ticketId) => {
+    setTicketToDelete(ticketId);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setTicketToDelete(null);
+  };
+
+  const handleDelete = () => {
+    deleteTicket(ticketToDelete);
+    handleClose();
+  };
+
 
   const getPriorityChipColor = (priority) => {
     switch (priority) {
@@ -43,6 +69,7 @@ const TicketsTable = () => {
   };
 
   return (
+    <>
     <TableContainer component={Paper} sx={{ mt: 4 }}>
       <Table>
         <TableHead>
@@ -52,6 +79,7 @@ const TicketsTable = () => {
             <TableCell>Priority</TableCell>
             <TableCell>Status</TableCell>
             <TableCell>Date Created</TableCell>
+            <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -71,7 +99,7 @@ const TicketsTable = () => {
                   onChange={(e) => updateTicketStatus(ticket.id, e.target.value)}
                   variant="standard"
                   sx={{
-                    ".MuiSelect-select:focus": {
+                    '.MuiSelect-select:focus': {
                       backgroundColor: 'transparent',
                     },
                   }}
@@ -82,11 +110,38 @@ const TicketsTable = () => {
                 </Select>
               </TableCell>
               <TableCell>{new Date(ticket.createdAt).toLocaleString()}</TableCell>
+              <TableCell>
+                <IconButton onClick={() => handleClickOpen(ticket.id)} aria-label="delete">
+                  <DeleteIcon />
+                </IconButton>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </TableContainer>
+    <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Delete this ticket?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete this ticket? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleDelete} autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

@@ -11,6 +11,8 @@ const useTicketsStore = create((set) => ({
         ticket.id === ticketId ? { ...ticket, status: newStatus } : ticket
       ),
     })),
+  deleteTicket: (ticketId) => 
+    set((state) => ({ tickets: state.tickets.filter((ticket) => ticket.id !== ticketId) })), 
 }));
 
 export default useTicketsStore;

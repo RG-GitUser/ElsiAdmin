@@ -1,8 +1,7 @@
-import React, { createContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged, signOut as firebaseSignOut, signInWithEmailAndPassword } from 'firebase/auth';
 import { app } from '../services/firebase'; // Corrected import path
-
-export const AuthContext = createContext();
+import { AuthContext } from './AuthContext';
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
