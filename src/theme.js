@@ -15,7 +15,8 @@ export const lightTheme = createTheme({
       paper: "#ffffff",
     },
     text: {
-      primary: '#172b4d',
+      primary: '#424242', // Very Dark Grey
+      secondary: '#757575',
     },
   },
   typography: {
@@ -89,6 +90,10 @@ export const darkTheme = createTheme({
     background: {
       default: "#121212",
       paper: "#1E1E1E",
+    },
+    text: {
+      primary: '#ffffff',
+      secondary: 'rgba(255, 255, 255, 0.7)',
     },
   },
   typography: {

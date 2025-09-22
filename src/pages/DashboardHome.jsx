@@ -18,24 +18,10 @@ import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 
 const NewsItem = ({ title, content }) => (
-    <>
-      <ListItem alignItems="flex-start">
-        <ListItemText
-          primary={title}
-          secondary={
-            <Typography
-              sx={{ display: 'inline' }}
-              component="span"
-              variant="body2"
-              color="text.primary"
-            >
-              {content}
-            </Typography>
-          }
-        />
-      </ListItem>
-      <Divider component="li" />
-    </>
+    <Box sx={{ mb: 2 }}>
+      <Typography variant="subtitle1" fontWeight="bold">{title}</Typography>
+      <Typography variant="body2">{content}</Typography>
+    </Box>
 );
 
 const RecentTemplateItem = ({ name }) => (
@@ -73,7 +59,7 @@ function DashboardHome() {
           <Grid container spacing={3}>
             {/* Time/Date Card */}
             <Grid item xs={12} md={3}>
-              <Card sx={{ boxShadow: 3, height: '100%' }}>
+              <Card sx={{ boxShadow: 3 }}>
                 <CardContent>
                   <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <TodayIcon /> {dateTime.toLocaleDateString(undefined, { weekday: 'long' })}
@@ -85,13 +71,14 @@ function DashboardHome() {
 
             {/* Latest Employee News Card */}
             <Grid item xs={12} md={3}>
-              <Card sx={{ boxShadow: 3, height: '100%' }}>
+              <Card sx={{ boxShadow: 3 }}>
                 <CardContent>
                   <Typography variant="h5" gutterBottom>
                     Latest Employee News
                   </Typography>
                   <Box sx={{ pr: 2 }}>
                     <NewsItem title="New HR Policy" content="Please review the updated HR policy on the company portal." />
+                    <Divider sx={{ my: 1 }} />
                     <NewsItem title="Holiday Schedule" content="The office will be closed on July 4th for Independence Day." />
                   </Box>
                 </CardContent>
@@ -100,7 +87,7 @@ function DashboardHome() {
 
             {/* Recently Used Templates Card */}
             <Grid item xs={12} md={6}>
-              <Card sx={{ boxShadow: 3, height: '100%' }}>
+              <Card sx={{ boxShadow: 3 }}>
                 <CardContent>
                   <Typography variant="h5" gutterBottom>
                     Recently Used Templates
@@ -118,12 +105,12 @@ function DashboardHome() {
 
             {/* Quick Stats Card */}
             <Grid item xs={12} md={6}>
-              <Card sx={{ boxShadow: 3, height: '100%' }}>
+              <Card sx={{ boxShadow: 3 }}>
                 <CardContent>
                   <Typography variant="h5" gutterBottom>
                     Quick Stats
                   </Typography>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center', p: 2 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, p: 2, textAlign: 'center' }}>
                     <Box>
                       <Typography variant="h4">12</Typography>
                       <Typography variant="body1">Active Projects</Typography>
@@ -139,7 +126,7 @@ function DashboardHome() {
 
             {/* Recent Activity Card */}
             <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 2, boxShadow: 3, height: '100%' }}>
+              <Paper sx={{ p: 2, boxShadow: 3 }}>
                 <Typography variant="h6" gutterBottom>
                   Recent Activity
                 </Typography>
