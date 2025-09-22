@@ -1,10 +1,9 @@
-
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCjdK6dA1WBiFvxFq2j52X7OMkFMELU2Tw",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "elisadmin.firebaseapp.com",
   projectId: "elisadmin",
   storageBucket: "elisadmin.firebasestorage.app",
