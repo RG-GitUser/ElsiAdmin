@@ -5,7 +5,7 @@ export const lightTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: "#0052cc",
+      main: "#424242", // Very Dark Grey
     },
     secondary: {
       main: "#ffc107",
@@ -22,7 +22,7 @@ export const lightTheme = createTheme({
     fontFamily: "'Roboto', sans-serif",
     h5: {
       fontWeight: 600,
-      color: '#0052cc'
+      color: '#424242' // Very Dark Grey
     },
     h6: {
       fontWeight: 600,
@@ -33,7 +33,7 @@ export const lightTheme = createTheme({
       styleOverrides: {
         root: {
           backdropFilter: "blur(10px)",
-          backgroundColor: "rgba(0, 82, 204, 0.8)",
+          backgroundColor: "rgba(33, 150, 243, 0.8)", // Beautiful Blue with transparency
         },
       },
     },
@@ -49,10 +49,16 @@ export const lightTheme = createTheme({
       styleOverrides: {
         root: {
           "&:hover": {
-            backgroundColor: "rgba(255, 193, 7, 0.2)",
+            backgroundColor: "rgba(173, 216, 230, 0.3)", // Light Blue
             transform: "scale(1.02)",
             transition: "transform 0.2s ease-in-out",
           },
+          "&.Mui-selected": {
+            backgroundColor: "rgba(66, 66, 66, 0.2)", // Dark Grey selection
+            "&:hover": {
+              backgroundColor: "rgba(66, 66, 66, 0.3)", // Darker Grey on hover
+            }
+          }
         },
       },
     },
@@ -75,7 +81,7 @@ export const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: "#9fa8da",
+      main: "#bdbdbd", // Lighter Grey for dark mode
     },
     secondary: {
       main: "#ffc107",
@@ -95,7 +101,7 @@ export const darkTheme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: "#1E1E1E",
+          backgroundColor: "#2196f3", // Solid Beautiful Blue
         },
       },
     },
@@ -110,7 +116,7 @@ export const darkTheme = createTheme({
       styleOverrides: {
         root: {
           "&:hover": {
-            backgroundColor: "rgba(255, 193, 7, 0.2)",
+            backgroundColor: "rgba(173, 216, 230, 0.3)", // Light Blue
             transform: "scale(1.05)",
             transition: "transform 0.2s ease-in-out",
           },

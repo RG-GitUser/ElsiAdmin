@@ -1,109 +1,104 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
-  Grid,
   Card,
   CardContent,
-  CardActions,
-  Button,
+  Grid,
   List,
   ListItem,
-  ListItemIcon,
   ListItemText,
+  CardActions,
+  Button,
   Paper,
-  IconButton,
+  Divider
 } from '@mui/material';
-import {
-  Folder as FolderIcon,
-  Description as FileIcon,
-  UploadFile as UploadFileIcon,
-  CreateNewFolder as CreateNewFolderIcon,
-  Event as EventIcon,
-  Today as TodayIcon,
-  RssFeed as RssFeedIcon,
-} from '@mui/icons-material';
+import TodayIcon from '@mui/icons-material/Today';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, momentLocalizer } from 'react-big-calendar';
-import moment from 'moment';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-
-const localizer = momentLocalizer(moment);
-
-const RecentTemplateItem = ({ name }) => (
-  <ListItem>
-    <ListItemIcon>
-      <FileIcon />
-    </ListItemIcon>
-    <ListItemText primary={name} />
-  </ListItem>
-);
+import useAuthStore from '../store/authStore';
 
 const NewsItem = ({ title, content }) => (
-  <Box sx={{ mb: 2 }}>
-    <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-      <RssFeedIcon /> {title}
-    </Typography>
-    <Typography variant="body2">{content}</Typography>
-  </Box>
+    <>
+      <ListItem alignItems="flex-start">
+        <ListItemText
+          primary={title}
+          secondary={
+            <Typography
+              sx={{ display: 'inline' }}
+              component="span"
+              variant="body2"
+              color="text.primary"
+            >
+              {content}
+            </Typography>
+          }
+        />
+      </ListItem>
+      <Divider component="li" />
+    </>
 );
 
+const RecentTemplateItem = ({ name }) => (
+    <ListItem>
+        <ListItemText primary={name} />
+    </ListItem>
+);
+
+const UserActivity = ({ name, action, time }) => (
+    <ListItem>
+        <ListItemText primary={`${name} ${action}`} secondary={time} />
+    </ListItem>
+);
+
+
 function DashboardHome() {
-  const [dateTime, setDateTime] = React.useState(new Date());
-  const navigate = useNavigate();
-  const fileInputRef = React.useRef(null);
+    const [dateTime, setDateTime] = useState(new Date());
+    const navigate = useNavigate();
+    const { user } = useAuthStore();
 
-  React.useEffect(() => {
-    const timer = setInterval(() => setDateTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
-  const handleUploadClick = () => {
-    fileInputRef.current.click();
-  };
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setDateTime(new Date());
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
 
-  const events = [
-    {
-      title: 'Team Meeting',
-      start: new Date(2024, 6, 22, 10, 0),
-      end: new Date(2024, 6, 22, 11, 0),
-    },
-    {
-      title: 'Project Deadline',
-      start: new Date(2024, 6, 25, 17, 0),
-      end: new Date(2024, 6, 25, 17, 0),
-    },
-  ];
+    if (!user) {
+        return <Typography>Loading user data...</Typography>;
+      }
 
-  return (
-    <Box>
-      <Grid container spacing={3}>
-        {/* Left Column */}
-        <Grid item xs={12} md={3}>
-          <Card sx={{ mb: 3, boxShadow: 3 }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <TodayIcon /> {dateTime.toLocaleDateString(undefined, { weekday: 'long' })}
-              </Typography>
-              <Typography variant="h4">{dateTime.toLocaleTimeString()}</Typography>
-            </CardContent>
-          </Card>
-          <Card sx={{ boxShadow: 3 }}>
-            <CardContent>
-              <Typography variant="h5" gutterBottom>
-                Latest Employee News
-              </Typography>
-              <Box sx={{ maxHeight: 200, overflow: 'auto', pr: 2 }}>
-                <NewsItem title="New HR Policy" content="Please review the updated HR policy on the company portal." />
-                <NewsItem title="Holiday Party" content="Join us for the annual holiday party on December 20th!" />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Right Column */}
-        <Grid item xs={12} md={9}>
+    return (
+        <Box>
           <Grid container spacing={3}>
+            {/* Time/Date Card */}
+            <Grid item xs={12} md={3}>
+              <Card sx={{ boxShadow: 3, height: '100%' }}>
+                <CardContent>
+                  <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <TodayIcon /> {dateTime.toLocaleDateString(undefined, { weekday: 'long' })}
+                  </Typography>
+                  <Typography variant="h4">{dateTime.toLocaleTimeString()}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Latest Employee News Card */}
+            <Grid item xs={12} md={3}>
+              <Card sx={{ boxShadow: 3, height: '100%' }}>
+                <CardContent>
+                  <Typography variant="h5" gutterBottom>
+                    Latest Employee News
+                  </Typography>
+                  <Box sx={{ pr: 2 }}>
+                    <NewsItem title="New HR Policy" content="Please review the updated HR policy on the company portal." />
+                    <NewsItem title="Holiday Schedule" content="The office will be closed on July 4th for Independence Day." />
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Recently Used Templates Card */}
             <Grid item xs={12} md={6}>
               <Card sx={{ boxShadow: 3, height: '100%' }}>
                 <CardContent>
@@ -120,56 +115,44 @@ function DashboardHome() {
                 </CardActions>
               </Card>
             </Grid>
+
+            {/* Quick Stats Card */}
             <Grid item xs={12} md={6}>
               <Card sx={{ boxShadow: 3, height: '100%' }}>
                 <CardContent>
                   <Typography variant="h5" gutterBottom>
-                    My Documents
+                    Quick Stats
                   </Typography>
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
-                    <IconButton aria-label="create new folder" onClick={() => alert('Create new folder clicked')}>
-                      <CreateNewFolderIcon />
-                    </IconButton>
-                    <IconButton aria-label="upload file" onClick={handleUploadClick}>
-                      <UploadFileIcon />
-                    </IconButton>
-                    <input type="file" ref={fileInputRef} style={{ display: 'none' }} />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center', p: 2 }}>
+                    <Box>
+                      <Typography variant="h4">12</Typography>
+                      <Typography variant="body1">Active Projects</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="h4">5</Typography>
+                      <Typography variant="body1">Pending Tasks</Typography>
+                    </Box>
                   </Box>
-                  <List>
-                    <ListItem>
-                      <ListItemIcon>
-                        <FolderIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="Work" />
-                    </ListItem>
-                    <ListItem>
-                      <ListItemIcon>
-                        <FileIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="performance-review.pdf" />
-                    </ListItem>
-                  </List>
                 </CardContent>
-                <CardActions>
-                  <Button size="small" onClick={() => navigate('/documents')}>View All</Button>
-                </CardActions>
               </Card>
             </Grid>
-          </Grid>
-          <Box mt={3}>
-            <Card sx={{ boxShadow: 3 }}>
-              <CardContent>
-                <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <EventIcon /> Calendar
+
+            {/* Recent Activity Card */}
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 2, boxShadow: 3, height: '100%' }}>
+                <Typography variant="h6" gutterBottom>
+                  Recent Activity
                 </Typography>
-                <Calendar localizer={localizer} events={events} startAccessor="start" endAccessor="end" style={{ height: 220 }} />
-              </CardContent>
-            </Card>
-          </Box>
-        </Grid>
-      </Grid>
-    </Box>
-  );
+                <List sx={{ maxHeight: 300, overflow: 'auto' }}>
+                  <UserActivity name="John Doe" action="updated a template" time="2 hours ago" />
+                  <UserActivity name="Jane Smith" action="shared a document" time="5 hours ago" />
+                  <UserActivity name="Admin" action="approved a request" time="1 day ago" />
+                </List>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Box>
+    );
 }
 
 export default DashboardHome;

@@ -138,7 +138,7 @@ function Templates() {
           {canCreateTemplate && (
             <Button
               variant="contained"
-              color="primary"
+              sx={{ backgroundColor: '#2196f3' }} // Beautiful Blue
               onClick={() => handleOpenDialog()}
             >
               Create New Template
@@ -168,7 +168,7 @@ function Templates() {
               ) : (
                 <ChevronRight sx={{ mr: 2 }} />
               )}
-              <Folder sx={{ mr: 2 }} />
+              <Folder sx={{ mr: 2, color: '#2196f3' }} />
               <Typography variant="h6">{folder}</Typography>
             </Paper>
             <Collapse in={openFolder === folder} timeout="auto" unmountOnExit>

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import { lightTheme, darkTheme } from "./theme.js";
 import useThemeStore from "./store/themeStore";
+import useAuthStore from "./store/authStore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -18,17 +19,15 @@ import Documents from "./pages/Documents";
 
 function App() {
   const { mode } = useThemeStore();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const { user, setUser, loading } = useAuthStore();
   const auth = getAuth();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsAuthenticated(!!user);
-      setLoading(false);
+      setUser(user);
     });
     return () => unsubscribe();
-  }, [auth]);
+  }, [auth, setUser]);
 
   if (loading) {
     return <div>Loading...</div>; 
@@ -38,9 +37,9 @@ function App() {
     <ThemeProvider theme={mode === "light" ? lightTheme : darkTheme}>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
-          <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/" />} />
-          <Route path="/" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}>
+          <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
+          <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
+          <Route path="/" element={user ? <Dashboard /> : <Navigate to="/login" />}>
             <Route index element={<DashboardHome />} />
             <Route path="users" element={<Users />} />
             <Route path="templates" element={<Templates />} />
