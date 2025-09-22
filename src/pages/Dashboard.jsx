@@ -18,16 +18,16 @@ import {
 import {
   Menu as MenuIcon,
   ChevronLeft as ChevronLeftIcon,
-  Home as HomeIcon,
-  People as PeopleIcon,
-  Description as DescriptionIcon,
-  Settings as SettingsIcon,
-  ExitToApp as ExitToAppIcon,
-  AccountCircle as AccountCircleIcon,
-  Analytics as AnalyticsIcon,
-  AdminPanelSettings as AdminPanelSettingsIcon,
+  HomeRounded,
+  PeopleAltRounded,
+  ArticleRounded,
+  SettingsApplicationsRounded,
+  LogoutRounded as ExitToAppIcon,
+  AccountCircleRounded,
+  BarChartRounded,
+  AdminPanelSettingsRounded,
 } from "@mui/icons-material";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import useThemeStore from "../store/themeStore";
 import { getAuth } from "firebase/auth";
@@ -38,10 +38,7 @@ const drawerWidth = 240;
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
   ({ theme, open }) => ({
     flexGrow: 1,
-    paddingBottom: theme.spacing(3),
-    paddingLeft: theme.spacing(3),
-    paddingRight: theme.spacing(3),
-    marginTop: '20px',
+    padding: theme.spacing(3),
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -87,6 +84,7 @@ const Dashboard = () => {
   const [open, setOpen] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { mode, toggleMode } = useThemeStore();
   const auth = getAuth();
   const db = getFirestore();
@@ -121,15 +119,26 @@ const Dashboard = () => {
     });
   };
 
+  const iconColors = {
+    Dashboard: '#FF6347', // Tomato
+    'My Profile': '#6495ED', // CornflowerBlue
+    Templates: '#FFD700', // Gold
+    Users: '#3CB371', // MediumSeaGreen
+    Permissions: '#8A2BE2', // BlueViolet
+    Analytics: '#FF4500', // OrangeRed
+    Settings: '#9932CC', // DarkOrchid
+    Documents: '#4682B4', // SteelBlue
+};
+
   const allMenuItems = [
-    { text: "Dashboard", icon: <HomeIcon />, path: "/" },
-    { text: "My Profile", icon: <AccountCircleIcon />, path: `/profile/${auth.currentUser.uid}` },
-    { text: "Templates", icon: <DescriptionIcon />, path: "/templates" },
-    { text: "Users", icon: <PeopleIcon />, path: "/users", adminOnly: true },
-    { text: "Permissions", icon: <AdminPanelSettingsIcon />, path: "/permissions", adminOnly: true },
-    { text: "Analytics", icon: <AnalyticsIcon />, path: "/analytics" },
-    { text: "Settings", icon: <SettingsIcon />, path: "/settings" },
-    { text: "Documents", icon: <DescriptionIcon />, path: "/documents" },
+    { text: "Dashboard", icon: <HomeRounded />, path: "/", color: iconColors.Dashboard },
+    { text: "My Profile", icon: <AccountCircleRounded />, path: `/profile/${auth.currentUser.uid}`, color: iconColors['My Profile'] },
+    { text: "Templates", icon: <ArticleRounded />, path: "/templates", color: iconColors.Templates },
+    { text: "Users", icon: <PeopleAltRounded />, path: "/users", adminOnly: true, color: iconColors.Users },
+    { text: "Permissions", icon: <AdminPanelSettingsRounded />, path: "/permissions", adminOnly: true, color: iconColors.Permissions },
+    { text: "Analytics", icon: <BarChartRounded />, path: "/analytics", color: iconColors.Analytics },
+    { text: "Settings", icon: <SettingsApplicationsRounded />, path: "/settings", color: iconColors.Settings },
+    { text: "Documents", icon: <ArticleRounded />, path: "/documents", color: iconColors.Documents },
   ];
 
   const menuItems = allMenuItems.filter(item => !item.adminOnly || isAdmin);
@@ -137,7 +146,10 @@ const Dashboard = () => {
   return (
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
-        <StyledAppBar position="fixed" open={open}>
+        <StyledAppBar position="fixed" open={open} sx={{
+          boxShadow: 'none',
+          borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+        }}>
           <Toolbar>
             <IconButton
               color="inherit"
@@ -167,6 +179,8 @@ const Dashboard = () => {
             "& .MuiDrawer-paper": {
               width: drawerWidth,
               boxSizing: "border-box",
+              borderRight: 'none',
+              backgroundColor: (theme) => theme.palette.mode === 'dark' ? '#1e1e1e' : '#f5f5f5'
             },
           }}
           variant="persistent"
@@ -179,16 +193,39 @@ const Dashboard = () => {
               <ChevronLeftIcon />
             </IconButton>
           </DrawerHeader>
-          <List>
+          <List sx={{ p: 2}}>
             {menuItems.map((item) => (
-              <ListItemButton key={item.text} onClick={() => navigate(item.path)}>
-                <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemButton 
+                key={item.text} 
+                onClick={() => navigate(item.path)}
+                sx={{ 
+                  borderRadius: 2, 
+                  mb: 1,
+                  ...(location.pathname === item.path && {
+                    backgroundColor: 'primary.main',
+                    color: 'primary.contrastText',
+                    '&:hover': {
+                      backgroundColor: 'primary.dark',
+                    }
+                  })
+                }}
+              >
+                <ListItemIcon sx={{
+                  minWidth: 'auto',
+                  mr: 2,
+                  color: location.pathname === item.path ? 'primary.contrastText' : item.color,
+                }}>
+                  {item.icon}
+                </ListItemIcon>
                 <ListItemText primary={item.text} />
               </ListItemButton>
             ))}
           </List>
         </Drawer>
-        <Main open={open}>
+        <Main open={open} sx={{
+          backgroundColor: (theme) => theme.palette.mode === 'dark' ? '#121212' : '#fafafa',
+          minHeight: '100vh'
+        }}>
           <DrawerHeader />
           <Outlet />
         </Main>
