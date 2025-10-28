@@ -7,6 +7,7 @@ import {
   updateDoc,
   deleteDoc,
   doc,
+  serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { getAuth } from 'firebase/auth';
@@ -41,7 +42,13 @@ const useTemplatesStore = create((set) => ({
       const auth = getAuth();
       const user = auth.currentUser;
       if (user) {
-        const newTemplate = { ...template, owner: user.uid, folder: template.folder || '' };
+        const newTemplate = { 
+          ...template, 
+          owner: user.uid, 
+          createdBy: user.uid,
+          createdAt: serverTimestamp(),
+          folder: template.folder || '' 
+        };
         const docRef = await addDoc(collection(db, 'templates'), newTemplate);
         set((state) => ({
           templates: [...state.templates, { id: docRef.id, ...newTemplate }],
@@ -58,11 +65,18 @@ const useTemplatesStore = create((set) => ({
   updateTemplate: async (id, updatedTemplate) => {
     set({ loading: true, error: null });
     try {
+      const auth = getAuth();
+      const user = auth.currentUser;
       const templateRef = doc(db, 'templates', id);
-      await updateDoc(templateRef, updatedTemplate);
+      const updateData = {
+        ...updatedTemplate,
+        updatedAt: serverTimestamp(),
+        updatedBy: user.uid,
+      };
+      await updateDoc(templateRef, updateData);
       set((state) => ({
         templates: state.templates.map((template) =>
-          template.id === id ? { ...template, ...updatedTemplate } : template
+          template.id === id ? { ...template, ...updateData } : template
         ),
         loading: false,
       }));

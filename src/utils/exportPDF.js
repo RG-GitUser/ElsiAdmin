@@ -1,9 +1,17 @@
 import jsPDF from 'jspdf';
 
-const exportPDF = (template) => {
+export const exportPDF = (template) => {
+  if (!template) {
+    console.error("exportPDF was called without a template.");
+    alert("Could not export PDF: No template data provided.");
+    return;
+  }
+
   const doc = new jsPDF();
   const page_width = doc.internal.pageSize.width;
   const margin = 14;
+
+  const templateName = template.name || 'Untitled Document';
 
   // Logo
   const img = new Image();
@@ -15,7 +23,7 @@ const exportPDF = (template) => {
   doc.rect(0, 0, page_width, 40, 'F');
   doc.setFontSize(22);
   doc.setTextColor(255, 255, 255);
-  doc.text(template.name, page_width / 2, 25, { align: 'center' });
+  doc.text(templateName, page_width / 2, 25, { align: 'center' });
 
   // Description
   doc.setFontSize(12);
@@ -27,29 +35,32 @@ const exportPDF = (template) => {
   let y = 60 + descriptionHeight + 10; // Start custom fields below description
 
   // Custom Fields
-  template.customFields.forEach((field) => {
-    if (y > doc.internal.pageSize.height - 30) {
-      doc.addPage();
-      y = 20;
-    }
-    doc.setFontSize(12);
-    doc.setTextColor(25, 118, 210);
-    doc.text(`${field.name}:`, margin, y);
+  if (template.customFields && Array.isArray(template.customFields)) {
+    template.customFields.forEach((field) => {
+      if (!field) return; // Skip if field is null or undefined
+      if (y > doc.internal.pageSize.height - 30) {
+        doc.addPage();
+        y = 20;
+      }
+      doc.setFontSize(12);
+      doc.setTextColor(25, 118, 210);
+      doc.text(`${field.name || 'Unnamed Field'}:`, margin, y);
 
-    doc.setTextColor(0, 0, 0);
-    const valueLines = doc.splitTextToSize(field.value || '', page_width - margin - 50); // 50 is where value starts
-    doc.text(valueLines, 50, y);
-    const valueHeight = doc.getTextDimensions(valueLines).h;
-    y += valueHeight + 5;
-  });
+      doc.setTextColor(0, 0, 0);
+      const valueLines = doc.splitTextToSize(field.value || '', page_width - margin - 50); // 50 is where value starts
+      doc.text(valueLines, 50, y);
+      const valueHeight = doc.getTextDimensions(valueLines).h;
+      y += valueHeight + 5;
+    });
+  }
 
   // Footer
-  const finePrint = `Created on ${template.createdAt} by ${template.createdBy}`;
+  const createdAt = template.createdAt ? new Date(template.createdAt.seconds * 1000).toLocaleDateString() : 'N/A';
+  const createdBy = template.createdBy || 'Unknown';
+  const finePrint = `Created on ${createdAt} by ${createdBy}`;
   doc.setFontSize(8);
   doc.setTextColor(150, 150, 150);
   doc.text(finePrint, margin, doc.internal.pageSize.height - 10);
 
-  doc.save(`${template.name}.pdf`);
+  doc.save(`${templateName}.pdf`);
 };
-
-export default exportPDF;

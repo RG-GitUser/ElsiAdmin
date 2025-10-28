@@ -19,8 +19,7 @@ import TemplateDialog from "../components/TemplateDialog";
 import ShareTemplateDialog from "../components/ShareTemplateDialog";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import { exportPDF } from "../utils/exportPDF";
 
 const templateFolders = [
     "Demo",
@@ -110,18 +109,7 @@ function Templates() {
   }
 
   const handleExportPdf = (template) => {
-    const input = document.createElement('div');
-    input.innerHTML = template.content;
-    document.body.appendChild(input);
-    
-    html2canvas(input)
-      .then((canvas) => {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF();
-        pdf.addImage(imgData, 'PNG', 0, 0);
-        pdf.save(`${template.name}.pdf`);
-        document.body.removeChild(input);
-      });
+    exportPDF(template);
   };
 
   const filteredTemplates = templates.filter(

@@ -26,37 +26,40 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
   const [folder, setFolder] = useState("");
   const [customFields, setCustomFields] = useState([]);
   const [error, setError] = useState(null);
-  const [userData, setUserData] = useState(null);
+  const [creatorName, setCreatorName] = useState("");
   const { addTemplate, updateTemplate } = useTemplatesStore();
   const auth = getAuth();
   const db = getFirestore();
   const user = auth.currentUser;
 
   useEffect(() => {
+    const fetchCreatorName = async (uid) => {
+      const userDocRef = doc(db, "users", uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        return userDoc.data().name || "Unknown";
+      } else {
+        return "Unknown";
+      }
+    };
+
     if (template) {
       setName(template.name || "");
       setDescription(template.description || "");
       setFolder(template.folder || "");
       setCustomFields(template.customFields || []);
+      if (template.createdBy) {
+        fetchCreatorName(template.createdBy).then(setCreatorName);
+      }
     } else {
       setName("");
       setDescription("");
       setFolder("");
       setCustomFields([]);
+      setCreatorName(""); 
     }
     setError(null);
-
-    const fetchUserData = async () => {
-      if (user) {
-        const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          setUserData(userDoc.data());
-        }
-      }
-    };
-    fetchUserData();
-  }, [template, open, user, db]);
+  }, [template, open, db]);
 
   const handleAddCustomField = () => {
     setCustomFields([...customFields, { id: Date.now(), name: "", value: "" }]);
@@ -85,21 +88,11 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
     if (template) {
       updateTemplate(template.id, { name, description, folder, customFields });
     } else {
-      let creatorName = "Unknown";
-      if (user) {
-        if (userData) {
-          creatorName = userData.name;
-        } else {
-          creatorName = user.displayName || "Unknown";
-        }
-      }
       const newTemplate = {
         name,
         description,
         folder,
         customFields,
-        createdBy: creatorName,
-        createdAt: new Date().toLocaleString(),
       };
       addTemplate(newTemplate);
     }
@@ -186,15 +179,22 @@ function TemplateDialog({ open, onClose, template, templateFolders }) {
           Add Field
         </Button>
 
-        <Box sx={{ mt: 4, p: 2, border: '1px solid #ccc', borderRadius: '4px' }}>
-          <Typography variant="h6" gutterBottom>Template Information</Typography>
-          <Typography variant="body1">
-            Created by: {template ? template.createdBy : (userData ? userData.name : (user ? user.displayName : ''))}
-          </Typography>
-          <Typography variant="body1">
-            Creation time: {template ? template.createdAt : new Date().toLocaleString()}
-          </Typography>
-        </Box>
+        {template && (
+          <Box sx={{ mt: 4, p: 2, border: '1px solid #ccc', borderRadius: '4px' }}>
+            <Typography variant="h6" gutterBottom>Template Information</Typography>
+            <Typography variant="body1">
+              Created by: {creatorName}
+            </Typography>
+            <Typography variant="body1">
+              Creation time: {template.createdAt?.toDate().toLocaleString()}
+            </Typography>
+            {template.updatedAt && (
+              <Typography variant="body1">
+                Last updated: {template.updatedAt?.toDate().toLocaleString()}
+              </Typography>
+            )}
+          </Box>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
