@@ -21,11 +21,9 @@
 
 ## 🛠️ Tech Stack
 
-*(Adjust this section if needed)*
-
-- Frontend: React / Next.js  
+- Frontend: React 
 - Backend: Node.js  
-- Database: Firebase / SQL / MongoDB  
+- Database: Firebase 
 - Authentication: Role-based admin access  
 
 ## 📂 Project Structure
