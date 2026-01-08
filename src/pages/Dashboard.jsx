@@ -227,7 +227,6 @@ const Dashboard = () => {
           </List>
         </Drawer>
         <Main open={open} sx={{
-          backgroundColor: (theme) => theme.palette.mode === 'dark' ? '#121212' : '#fafafa',
           minHeight: '100vh'
         }}>
           <DrawerHeader />

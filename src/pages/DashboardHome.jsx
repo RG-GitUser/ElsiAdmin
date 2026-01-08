@@ -129,7 +129,9 @@ const DashboardHome = () => {
                         p: 4,
                         mb: 4,
                         borderRadius: 4,
-                        background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+                        background: `url(/assets/peak4.svg)`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
                         color: '#fff',
                         boxShadow: '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)',
                         display: 'flex',
@@ -275,6 +277,7 @@ const DashboardHome = () => {
                                             </ListItemAvatar>
                                             <ListItemText
                                                 primary={item.title}
+                                                secondaryTypographyProps={{ component: 'div' }}
                                                 secondary={
                                                     <React.Fragment>
                                                         <Typography

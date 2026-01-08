@@ -4,6 +4,11 @@ import {
   Typography,
   CircularProgress,
   Alert,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Avatar
 } from '@mui/material';
 import useUsersStore from '../store/usersStore';
 import { getAuth } from 'firebase/auth';
@@ -31,13 +36,16 @@ function Users() {
       {error && <Alert severity="error">{error}</Alert>}
       {
         !loading && !error && (
-          <ul>
+          <List>
             {users.map((user) => (
-              <li key={user.id}>
-                {user.displayName} - {user.email}
-              </li>
+              <ListItem key={user.id} button onClick={() => navigate(`/profile/${user.id}`)}>
+                <ListItemAvatar>
+                  <Avatar src={user.profilePictureUrl} />
+                </ListItemAvatar>
+                <ListItemText primary={user.name} secondary={user.email} />
+              </ListItem>
             ))}
-          </ul>
+          </List>
         )
       }
     </Box>

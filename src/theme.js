@@ -20,7 +20,7 @@ export const lightTheme = createTheme({
     },
   },
   typography: {
-    fontFamily: "'Roboto', sans-serif",
+    fontFamily: "'Red Hat Display', sans-serif",
     h5: {
       fontWeight: 600,
       color: '#424242' // Very Dark Grey
@@ -97,7 +97,7 @@ export const darkTheme = createTheme({
     },
   },
   typography: {
-    fontFamily: "'Roboto', sans-serif",
+    fontFamily: "'Red Hat Display', sans-serif",
     h6: {
       fontWeight: 600,
     },
